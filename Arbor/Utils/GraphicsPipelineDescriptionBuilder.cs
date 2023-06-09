@@ -111,7 +111,5 @@ public class GraphicsPipelineDescriptionBuilder
     }
 
     public GraphicsPipelineDescription Build()
-    {
-        return description;
-    }
+        => description;
 }

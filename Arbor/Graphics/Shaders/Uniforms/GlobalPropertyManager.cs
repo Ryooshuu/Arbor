@@ -21,11 +21,11 @@ public static class GlobalPropertyManager
             new GlobalProperty<mat4>(GlobalProperties.PixelMatrix)
         };
     }
-    
+
     public static void Set<T>(CommandList cl, GlobalProperties property, T value)
         where T : unmanaged
     {
-        ((GlobalProperty<T>)global_properties.First(p => p.Property == property)).Update(cl, value);
+        ((GlobalProperty<T>) global_properties.First(p => p.Property == property)).Update(cl, value);
     }
 
     public static T Get<T>(GlobalProperties property)
@@ -39,9 +39,7 @@ public static class GlobalPropertyManager
         sb.AppendLine("#version 450");
         sb.AppendLine("layout (set=0, binding=0) uniform g_GlobalProperties {");
         foreach (var p in global_properties)
-        {
             sb.AppendLine("    " + p.Property.GetUniformType() + " " + p.Property.GetUniformName() + ";");
-        }
         sb.AppendLine("};");
 
         return sb + "\n" + source;
@@ -55,7 +53,7 @@ public static class GlobalPropertyManager
                 new ResourceLayoutElementDescription(
                     property.Property.GetUniformName(), ResourceKind.UniformBuffer, ShaderStages.Vertex)
             );
-            
+
             property.Init(pipeline);
         }
 
@@ -66,9 +64,7 @@ public static class GlobalPropertyManager
     public static void Dispose()
     {
         foreach (var property in global_properties)
-        {
             property.Dispose();
-        }
     }
 }
 

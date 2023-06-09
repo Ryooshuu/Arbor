@@ -81,19 +81,19 @@ public class Window : IDisposable
         };
 
         pipeline = new GraphicsPipeline(device);
-        
+
         buffer = new VertexBuffer<VertexPositionColour>(pipeline);
         var color = RgbaFloat.White;
 
         const float size = 200;
-        
+
         buffer.Add(new VertexPositionColour(new Vector2(0 + 20, 0 + 20), color));
         buffer.Add(new VertexPositionColour(new Vector2(size + 20, 0 + 20), color));
         buffer.Add(new VertexPositionColour(new Vector2(0 + 20, size + 20), color));
         buffer.Add(new VertexPositionColour(new Vector2(size + 20, size + 20), color));
 
         shader = new ShaderSet(new BasicVertexShader(), new BasicFragmentShader());
-        
+
         invalidatePixelMatrix();
     }
 
@@ -107,13 +107,13 @@ public class Window : IDisposable
     private void draw(double dt)
     {
         pipeline.Start();
-        
+
         if (!pixelMatrixBufferCache.IsValid)
         {
             pipeline.SetGlobalUniform(GlobalProperties.PixelMatrix, pixelMatrix);
             pixelMatrixBufferCache.Validate();
         }
-        
+
         pipeline.BindShader(shader);
         pipeline.DrawVertexBuffer(buffer);
         pipeline.UnbindShader();
@@ -121,7 +121,7 @@ public class Window : IDisposable
 
         pipeline.Flush();
     }
-    
+
     private void invalidatePixelMatrix()
     {
         pixelMatrix = mat4.Ortho(0, window.Width, window.Height, 0, -1, 1);

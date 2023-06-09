@@ -9,14 +9,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="GlmSharp" Version="0.9.8" />
-      <PackageReference Include="Veldrid" Version="4.9.0" />
-      <PackageReference Include="Veldrid.SPIRV" Version="1.0.15" />
-      <PackageReference Include="Veldrid.StartupUtilities" Version="4.9.0" />
+        <PackageReference Include="GlmSharp" Version="0.9.8"/>
+        <PackageReference Include="Veldrid" Version="4.9.0"/>
+        <PackageReference Include="Veldrid.SPIRV" Version="1.0.15"/>
+        <PackageReference Include="Veldrid.StartupUtilities" Version="4.9.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Arbor.Resources\Arbor.Resources.csproj" />
+        <ProjectReference Include="..\Arbor.Resources\Arbor.Resources.csproj"/>
     </ItemGroup>
 
 </Project>

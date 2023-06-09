@@ -18,12 +18,12 @@ public static class ExtensionMethods
     public static string GetUniformName(this object value)
     {
         var type = value as Type ?? value.GetType();
-        return (type.GetField(value.ToString()!)?.GetCustomAttribute<UniformAttribute>()?.Name!);
+        return type.GetField(value.ToString()!)?.GetCustomAttribute<UniformAttribute>()?.Name!;
     }
 
     public static string GetUniformType(this object value)
     {
         var type = value as Type ?? value.GetType();
-        return (type.GetField(value.ToString()!)?.GetCustomAttribute<UniformAttribute>()?.Type!);
+        return type.GetField(value.ToString()!)?.GetCustomAttribute<UniformAttribute>()?.Type!;
     }
 }

@@ -7,7 +7,7 @@ using Arbor.Graphics.Shaders.Vertices;
 using Arbor.Utils;
 using Veldrid;
 using Veldrid.SPIRV;
-using Shader = Arbor.Graphics.Shaders.Shader;
+using Shader = Veldrid.Shader;
 
 namespace Arbor.Graphics;
 
@@ -28,7 +28,7 @@ public class GraphicsPipeline : IDisposable
     {
         this.device = device;
     }
-    
+
     internal void Initialize()
     {
         commandList = device.ResourceFactory.CreateCommandList();
@@ -80,26 +80,22 @@ public class GraphicsPipeline : IDisposable
     {
         drawStack.Push(new DrawEnd(this));
     }
-    
+
     public void Flush()
     {
         while (drawStack.TryPop(out var command))
-        {
             command.Execute(commandList);
-        }
 
         device.SubmitCommands(commandList);
         device.SwapBuffers();
     }
 
     #endregion
-    
+
     #region Device API
 
     public Framebuffer GetSwapchainFramebuffer()
-    {
-        return device.SwapchainFramebuffer;
-    }
+        => device.SwapchainFramebuffer;
 
     public DeviceBuffer CreateBuffer<T>(T[] values, BufferUsage usage, uint? size = null)
         where T : unmanaged
@@ -117,26 +113,18 @@ public class GraphicsPipeline : IDisposable
     }
 
     public ResourceLayout CreateResourceLayout(ResourceLayoutElementDescription[] descriptions)
-    {
-        return factory.CreateResourceLayout(new ResourceLayoutDescription(descriptions));
-    }
+        => factory.CreateResourceLayout(new ResourceLayoutDescription(descriptions));
 
     public ResourceSet CreateResourceSet(ResourceLayout layout, BindableResource[] resources)
-    {
-        return factory.CreateResourceSet(new ResourceSetDescription(layout, resources));
-    }
+        => factory.CreateResourceSet(new ResourceSetDescription(layout, resources));
 
     public ResourceSet CreateResourceSet(ResourceLayoutElementDescription[] descriptions, BindableResource[] resources)
-    {
-        return CreateResourceSet(CreateResourceLayout(descriptions), resources);
-    }
+        => CreateResourceSet(CreateResourceLayout(descriptions), resources);
 
-    public IEnumerable<Veldrid.Shader> CompileShaders(Shader vertex, Shader fragment)
-    {
-        return factory.CreateFromSpirv(vertex.CreateShaderDescription(), fragment.CreateShaderDescription());
-    }
+    public IEnumerable<Shader> CompileShaders(Shaders.Shader vertex, Shaders.Shader fragment)
+        => factory.CreateFromSpirv(vertex.CreateShaderDescription(), fragment.CreateShaderDescription());
 
-    public IEnumerable<Veldrid.Shader> CompileShaders(Shader compute)
+    public IEnumerable<Shader> CompileShaders(Shaders.Shader compute)
     {
         return new[] { factory.CreateFromSpirv(compute.CreateShaderDescription()) };
     }
@@ -182,9 +170,7 @@ public class GraphicsPipeline : IDisposable
     }
 
     private Pipeline createPipeline(GraphicsPipelineDescription description)
-    {
-        return device.ResourceFactory.CreateGraphicsPipeline(description);
-    }
+        => device.ResourceFactory.CreateGraphicsPipeline(description);
 
     #endregion
 

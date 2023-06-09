@@ -28,7 +28,7 @@ public class ShaderSet
         if (!compute.Stage.HasFlag(ShaderStages.Compute))
             throw new ArgumentException($"Shader must be of type \"{nameof(ShaderStages.Compute)}\".", nameof(compute));
     }
-    
+
     private ShaderSet(ShaderSetDefinition definition, Shader[] shaders)
     {
         this.definition = definition;
@@ -75,11 +75,11 @@ public class ShaderSet
 public class CompiledShaderSet : IDisposable
 {
     private readonly Veldrid.Shader[] shaders;
-    
+
     public Veldrid.Shader Vertex => shaders[0];
     public Veldrid.Shader? Fragment => shaders[1];
     public Veldrid.Shader Compute => shaders[0];
-    
+
     public CompiledShaderSet(Veldrid.Shader[] shaders)
     {
         this.shaders = shaders;

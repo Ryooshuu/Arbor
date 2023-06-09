@@ -7,11 +7,11 @@ public class VertexBuffer<T> : IVertexBuffer
 {
     private readonly List<T> vertices = new();
     private ushort[] indices = null!;
-    private DeviceBuffer? vertexBuffer;
-    private DeviceBuffer? indexBuffer;
 
-    public DeviceBuffer? VerticesBuffer => vertexBuffer;
-    public DeviceBuffer? IndicesBuffer => indexBuffer;
+    public DeviceBuffer? VerticesBuffer { get; private set; }
+
+    public DeviceBuffer? IndicesBuffer { get; private set; }
+
     public uint Length => (uint) indices.Length;
 
     private readonly GraphicsPipeline pipeline;
@@ -27,18 +27,18 @@ public class VertexBuffer<T> : IVertexBuffer
         indices = new ushort[vertices.Count];
 
         for (var i = 0; i < indices.Length; i++)
-            indices[i] = (ushort)i;
-        
-        vertexBuffer?.Dispose();
-        indexBuffer?.Dispose();
+            indices[i] = (ushort) i;
 
-        vertexBuffer = pipeline.CreateBuffer(vertices.ToArray(), BufferUsage.VertexBuffer);
-        indexBuffer = pipeline.CreateBuffer(indices.ToArray(), BufferUsage.IndexBuffer);
+        VerticesBuffer?.Dispose();
+        IndicesBuffer?.Dispose();
+
+        VerticesBuffer = pipeline.CreateBuffer(vertices.ToArray(), BufferUsage.VertexBuffer);
+        IndicesBuffer = pipeline.CreateBuffer(indices.ToArray(), BufferUsage.IndexBuffer);
     }
 
     public void Dispose()
     {
-        vertexBuffer?.Dispose();
-        indexBuffer?.Dispose();
+        VerticesBuffer?.Dispose();
+        IndicesBuffer?.Dispose();
     }
 }

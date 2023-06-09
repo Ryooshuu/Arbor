@@ -9,7 +9,7 @@ public static class ResourceManager
     {
         var truePath = path.Replace('/', '.');
         var stream = assembly.GetManifestResourceStream($"{assembly.GetName().Name}.{truePath}");
-        
+
         Debug.Assert(stream != null, nameof(stream) + " != null");
         return stream;
     }

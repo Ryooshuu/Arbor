@@ -5,9 +5,9 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-    
+
     <ItemGroup>
-        <EmbeddedResource Include="Shaders/**/*" />
+        <EmbeddedResource Include="Shaders/**/*"/>
     </ItemGroup>
 
 </Project>
