@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text;
+using Arbor.Graphics.Shaders.Uniforms;
 using Arbor.Utils;
 using Veldrid;
 
@@ -28,14 +29,7 @@ public abstract class Shader : IDisposable
 
         var reader = new StreamReader(stream);
         var source = reader.ReadToEnd();
-
-        const string initial_code = @"
-#version 450
-
-layout (set=0, binding=0) uniform g_GlobalProperties {
-    mat4 g_PixelMatrix;
-};";
-        var bytes = Encoding.UTF8.GetBytes(initial_code + "\n" + source);
+        var bytes = Encoding.UTF8.GetBytes(GlobalPropertyManager.CreateShaderSource(source));
 
         return bytes;
     }

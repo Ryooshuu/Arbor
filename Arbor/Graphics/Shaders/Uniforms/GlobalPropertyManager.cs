@@ -1,4 +1,4 @@
-using System.ComponentModel;
+using System.Text;
 using Arbor.Utils;
 using GlmSharp;
 using Veldrid;
@@ -21,23 +21,7 @@ public static class GlobalPropertyManager
             new GlobalProperty<mat4>(GlobalProperties.PixelMatrix)
         };
     }
-
-    internal static void Init(GraphicsPipeline pipeline)
-    {
-        foreach (var property in global_properties)
-        {
-            element_descriptions.Add(
-                new ResourceLayoutElementDescription(
-                    property.Property.GetDescription(), ResourceKind.UniformBuffer, ShaderStages.Vertex)
-            );
-            
-            property.Init(pipeline);
-        }
-
-        GlobalResourceLayout = pipeline.CreateResourceLayout(element_descriptions.ToArray());
-        GlobalResourceSet = pipeline.CreateResourceSet(GlobalResourceLayout, global_properties.Select(p => p.Buffer).ToArray());
-    }
-
+    
     public static void Set<T>(CommandList cl, GlobalProperties property, T value)
         where T : unmanaged
     {
@@ -47,6 +31,36 @@ public static class GlobalPropertyManager
     public static T Get<T>(GlobalProperties property)
     {
         return (T) global_properties.First(p => p.Property == property).Value;
+    }
+
+    internal static string CreateShaderSource(string source)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("#version 450");
+        sb.AppendLine("layout (set=0, binding=0) uniform g_GlobalProperties {");
+        foreach (var p in global_properties)
+        {
+            sb.AppendLine("    " + p.Property.GetUniformType() + " " + p.Property.GetUniformName() + ";");
+        }
+        sb.AppendLine("};");
+
+        return sb + "\n" + source;
+    }
+
+    internal static void Init(GraphicsPipeline pipeline)
+    {
+        foreach (var property in global_properties)
+        {
+            element_descriptions.Add(
+                new ResourceLayoutElementDescription(
+                    property.Property.GetUniformName(), ResourceKind.UniformBuffer, ShaderStages.Vertex)
+            );
+            
+            property.Init(pipeline);
+        }
+
+        GlobalResourceLayout = pipeline.CreateResourceLayout(element_descriptions.ToArray());
+        GlobalResourceSet = pipeline.CreateResourceSet(GlobalResourceLayout, global_properties.Select(p => p.Buffer).ToArray());
     }
 
     public static void Dispose()
@@ -60,6 +74,6 @@ public static class GlobalPropertyManager
 
 public enum GlobalProperties
 {
-    [Description("g_PixelMatrix")]
+    [Uniform("g_PixelMatrix", "mat4")]
     PixelMatrix
 }

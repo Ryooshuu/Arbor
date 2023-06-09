@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Reflection;
+using Arbor.Graphics.Shaders.Uniforms;
 
 namespace Arbor.Utils;
 
@@ -12,5 +13,17 @@ public static class ExtensionMethods
 
         var type = value as Type ?? value.GetType();
         return (type.GetField(value.ToString()!)?.GetCustomAttribute<DescriptionAttribute>()?.Description ?? value.ToString())!;
+    }
+
+    public static string GetUniformName(this object value)
+    {
+        var type = value as Type ?? value.GetType();
+        return (type.GetField(value.ToString()!)?.GetCustomAttribute<UniformAttribute>()?.Name!);
+    }
+
+    public static string GetUniformType(this object value)
+    {
+        var type = value as Type ?? value.GetType();
+        return (type.GetField(value.ToString()!)?.GetCustomAttribute<UniformAttribute>()?.Type!);
     }
 }
