@@ -67,7 +67,7 @@ public class GraphicsPipeline : IDisposable
     public void SetGlobalUniform<T>(GlobalProperties property, T value)
         where T : unmanaged
     {
-        GlobalPropertyManager.Set(commandList, property, value);
+        drawStack.Push(new DrawUpdateGlobalUniform<T>(this, property, value));
     }
 
     public void DrawVertexBuffer(IVertexBuffer buffer)
