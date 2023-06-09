@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text;
 using Arbor.Caching;
 using Arbor.Graphics.Commands;
@@ -46,15 +45,8 @@ public class GraphicsPipeline : IDisposable
         drawStack.Push(new DrawStart(this));
     }
 
-    public void DrawRectangle(RgbaFloat color)
+    public void DrawVertexBuffer(IVertexBuffer buffer)
     {
-        var buffer = new VertexBuffer<VertexPositionColour>(this);
-
-        buffer.Add(new VertexPositionColour(new Vector2(-0.75f, 0.75f), color));
-        buffer.Add(new VertexPositionColour(new Vector2(0.75f, 0.75f), color));
-        buffer.Add(new VertexPositionColour(new Vector2(-0.75f, -0.75f), color));
-        buffer.Add(new VertexPositionColour(new Vector2(0.75f, -0.75f), color));
-
         aliveVertexBuffers.Add(buffer);
         drawStack.Push(new DrawVertexBuffer(this, buffer));
     }

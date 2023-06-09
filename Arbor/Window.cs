@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
+using System.Numerics;
 using Arbor.Graphics;
+using Arbor.Graphics.Vertices;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
@@ -59,12 +61,22 @@ public class Window : IDisposable
     private Sdl2Window window = null!;
     private GraphicsDevice device = null!;
 
+    private VertexBuffer<VertexPositionColour> buffer = null!;
+
     private void createWindow()
     {
         var options = new GraphicsDeviceOptions { PreferStandardClipSpaceYDirection = true };
         VeldridStartup.CreateWindowAndGraphicsDevice(createInfo, options, out window, out device);
 
         pipeline = new GraphicsPipeline(device);
+        
+        buffer = new VertexBuffer<VertexPositionColour>(pipeline);
+        var color = RgbaFloat.Red;
+        
+        buffer.Add(new VertexPositionColour(new Vector2(-0.75f, 0.75f), color));
+        buffer.Add(new VertexPositionColour(new Vector2(0.75f, 0.75f), color));
+        buffer.Add(new VertexPositionColour(new Vector2(-0.75f, -0.75f), color));
+        buffer.Add(new VertexPositionColour(new Vector2(0.75f, -0.75f), color));
     }
 
     #endregion
@@ -74,7 +86,7 @@ public class Window : IDisposable
     private void draw(double dt)
     {
         pipeline.Start();
-        pipeline.DrawRectangle(RgbaFloat.Red);
+        pipeline.DrawVertexBuffer(buffer);
         pipeline.End();
 
         pipeline.Flush();
