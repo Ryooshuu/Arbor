@@ -41,11 +41,11 @@ public class GraphicsPipeline : IDisposable
         drawStack.Push(new DrawStart(this));
     }
 
-    public void BindShader(ShaderPair pair)
+    public void BindShader(ShaderSet set)
     {
-        var compiledShaders = pair.GetCompiledShaders(this);
-        var vertexLayouts = pair.CreateVertexLayouts();
-        var resourceLayouts = pair.CreateResourceLayouts().Select(factory.CreateResourceLayout).ToArray();
+        var compiledShaders = set.GetCompiledShaders(this);
+        var vertexLayouts = set.CreateVertexLayouts();
+        var resourceLayouts = set.CreateResourceLayouts().Select(factory.CreateResourceLayout).ToArray();
 
         var builder = new GraphicsPipelineDescriptionBuilder(defaultPipelineDescription);
         builder.PushShaderSet(vertexLayouts.ToArray(), new[] { compiledShaders.Vertex, compiledShaders.Fragment! });

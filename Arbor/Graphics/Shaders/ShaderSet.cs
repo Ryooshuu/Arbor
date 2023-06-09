@@ -2,19 +2,19 @@ using Veldrid;
 
 namespace Arbor.Graphics.Shaders;
 
-public class ShaderPair
+public class ShaderSet
 {
     private readonly Shader[] shaders;
-    private readonly ShaderPairDefinition definition;
+    private readonly ShaderSetDefinition definition;
 
-    private CompiledShaderPair? cachedCompiledShaders;
+    private CompiledShaderSet? cachedCompiledShaders;
 
     public Shader Vertex => shaders[0];
     public Shader? Fragment => shaders[1];
     public Shader Compute => shaders[0];
 
-    public ShaderPair(Shader vertex, Shader fragment)
-        : this(ShaderPairDefinition.VertexFragment, new[] { vertex, fragment })
+    public ShaderSet(Shader vertex, Shader fragment)
+        : this(ShaderSetDefinition.VertexFragment, new[] { vertex, fragment })
     {
         if (!vertex.Stage.HasFlag(ShaderStages.Vertex))
             throw new ArgumentException($"Shader must be of type \"{nameof(ShaderStages.Vertex)}\".", nameof(vertex));
@@ -22,14 +22,14 @@ public class ShaderPair
             throw new ArgumentException($"Shader must be of type \"{nameof(ShaderStages.Fragment)}\".", nameof(fragment));
     }
 
-    public ShaderPair(Shader compute)
-        : this(ShaderPairDefinition.Compute, new[] { compute })
+    public ShaderSet(Shader compute)
+        : this(ShaderSetDefinition.Compute, new[] { compute })
     {
         if (!compute.Stage.HasFlag(ShaderStages.Compute))
             throw new ArgumentException($"Shader must be of type \"{nameof(ShaderStages.Compute)}\".", nameof(compute));
     }
     
-    private ShaderPair(ShaderPairDefinition definition, Shader[] shaders)
+    private ShaderSet(ShaderSetDefinition definition, Shader[] shaders)
     {
         this.definition = definition;
 
@@ -39,7 +39,7 @@ public class ShaderPair
         this.shaders = shaders;
     }
 
-    public CompiledShaderPair GetCompiledShaders(GraphicsPipeline pipeline)
+    public CompiledShaderSet GetCompiledShaders(GraphicsPipeline pipeline)
     {
         if (cachedCompiledShaders != null)
             return cachedCompiledShaders;
@@ -51,16 +51,16 @@ public class ShaderPair
         return cachedCompiledShaders;
     }
 
-    private CompiledShaderPair compileShaders(GraphicsPipeline pipeline)
+    private CompiledShaderSet compileShaders(GraphicsPipeline pipeline)
     {
         var compiledShaders = definition switch
         {
-            ShaderPairDefinition.VertexFragment => pipeline.CompileShaders(Vertex, Fragment!),
-            ShaderPairDefinition.Compute => pipeline.CompileShaders(Compute),
+            ShaderSetDefinition.VertexFragment => pipeline.CompileShaders(Vertex, Fragment!),
+            ShaderSetDefinition.Compute => pipeline.CompileShaders(Compute),
             _ => throw new Exception("Unknown shader definition type")
         };
 
-        return new CompiledShaderPair(compiledShaders.ToArray());
+        return new CompiledShaderSet(compiledShaders.ToArray());
     }
 
     public IEnumerable<VertexLayoutDescription> CreateVertexLayouts()
@@ -72,7 +72,7 @@ public class ShaderPair
            .Where(l => l.Elements.Length > 0);
 }
 
-public class CompiledShaderPair : IDisposable
+public class CompiledShaderSet : IDisposable
 {
     private readonly Veldrid.Shader[] shaders;
     
@@ -80,7 +80,7 @@ public class CompiledShaderPair : IDisposable
     public Veldrid.Shader? Fragment => shaders[1];
     public Veldrid.Shader Compute => shaders[0];
     
-    public CompiledShaderPair(Veldrid.Shader[] shaders)
+    public CompiledShaderSet(Veldrid.Shader[] shaders)
     {
         this.shaders = shaders;
     }
@@ -92,7 +92,7 @@ public class CompiledShaderPair : IDisposable
     }
 }
 
-public enum ShaderPairDefinition
+public enum ShaderSetDefinition
 {
     VertexFragment,
     Compute
