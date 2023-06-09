@@ -27,7 +27,15 @@ public abstract class Shader : IDisposable
             return Array.Empty<byte>();
 
         var reader = new StreamReader(stream);
-        var bytes = Encoding.UTF8.GetBytes(reader.ReadToEnd());
+        var source = reader.ReadToEnd();
+
+        const string initial_code = @"
+#version 450
+
+layout (set=0, binding=0) uniform g_GlobalProperties {
+    mat4 g_PixelMatrix;
+};";
+        var bytes = Encoding.UTF8.GetBytes(initial_code + "\n" + source);
 
         return bytes;
     }

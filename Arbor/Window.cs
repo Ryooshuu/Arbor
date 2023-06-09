@@ -83,12 +83,14 @@ public class Window : IDisposable
         pipeline = new GraphicsPipeline(device);
         
         buffer = new VertexBuffer<VertexPositionColour>(pipeline);
-        var color = RgbaFloat.Red;
+        var color = RgbaFloat.White;
+
+        const float size = 200;
         
         buffer.Add(new VertexPositionColour(new Vector2(0 + 20, 0 + 20), color));
-        buffer.Add(new VertexPositionColour(new Vector2(50 + 20, 0 + 20), color));
-        buffer.Add(new VertexPositionColour(new Vector2(0 + 20, 50 + 20), color));
-        buffer.Add(new VertexPositionColour(new Vector2(50 + 20, 50 + 20), color));
+        buffer.Add(new VertexPositionColour(new Vector2(size + 20, 0 + 20), color));
+        buffer.Add(new VertexPositionColour(new Vector2(0 + 20, size + 20), color));
+        buffer.Add(new VertexPositionColour(new Vector2(size + 20, size + 20), color));
 
         shader = new ShaderSet(new BasicVertexShader(), new BasicFragmentShader());
         
