@@ -1,4 +1,4 @@
-﻿using Arbor.Graphics.Vertices;
+﻿using Arbor.Graphics.Shaders.Vertices;
 using Veldrid;
 
 namespace Arbor.Graphics.Commands;

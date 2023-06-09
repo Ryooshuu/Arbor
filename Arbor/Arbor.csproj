@@ -14,4 +14,8 @@
       <PackageReference Include="Veldrid.StartupUtilities" Version="4.9.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Arbor.Resources\Arbor.Resources.csproj" />
+    </ItemGroup>
+
 </Project>

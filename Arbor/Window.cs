@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
 using Arbor.Graphics;
-using Arbor.Graphics.Vertices;
+using Arbor.Graphics.Shaders;
+using Arbor.Graphics.Shaders.Basic;
+using Arbor.Graphics.Shaders.Vertices;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
@@ -62,6 +64,7 @@ public class Window : IDisposable
     private GraphicsDevice device = null!;
 
     private VertexBuffer<VertexPositionColour> buffer = null!;
+    private ShaderPair shader = null!;
 
     private void createWindow()
     {
@@ -77,6 +80,8 @@ public class Window : IDisposable
         buffer.Add(new VertexPositionColour(new Vector2(0.75f, 0.75f), color));
         buffer.Add(new VertexPositionColour(new Vector2(-0.75f, -0.75f), color));
         buffer.Add(new VertexPositionColour(new Vector2(0.75f, -0.75f), color));
+
+        shader = new ShaderPair(new BasicVertexShader(), new BasicFragmentShader());
     }
 
     #endregion
@@ -86,7 +91,9 @@ public class Window : IDisposable
     private void draw(double dt)
     {
         pipeline.Start();
+        pipeline.BindShader(shader);
         pipeline.DrawVertexBuffer(buffer);
+        pipeline.UnbindShader();
         pipeline.End();
 
         pipeline.Flush();

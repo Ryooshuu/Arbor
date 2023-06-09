@@ -1,6 +1,6 @@
 ﻿using Veldrid;
 
-namespace Arbor.Graphics.Vertices;
+namespace Arbor.Graphics.Shaders.Vertices;
 
 public interface IVertexBuffer : IDisposable
 {

@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using Veldrid;
 
-namespace Arbor.Graphics.Vertices;
+namespace Arbor.Graphics.Shaders.Vertices;
 
 [StructLayout(LayoutKind.Sequential)]
 public struct VertexPositionColour

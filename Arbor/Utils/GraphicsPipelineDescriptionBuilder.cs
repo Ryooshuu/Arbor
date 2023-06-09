@@ -1,6 +1,6 @@
 ﻿using Veldrid;
 
-namespace Arbor.Graphics.Utils;
+namespace Arbor.Utils;
 
 public class GraphicsPipelineDescriptionBuilder
 {
@@ -52,9 +52,9 @@ public class GraphicsPipelineDescriptionBuilder
         return this;
     }
 
-    public GraphicsPipelineDescriptionBuilder PushResourceLayouts(ResourceLayout layout)
+    public GraphicsPipelineDescriptionBuilder PushResourceLayouts(ResourceLayout[] layout)
     {
-        description.ResourceLayouts = addToImmutableArray(description.ResourceLayouts, layout);
+        description.ResourceLayouts = ArrayExtensions.AddToImmutableArray(description.ResourceLayouts, layout);
         return this;
     }
 
@@ -70,16 +70,16 @@ public class GraphicsPipelineDescriptionBuilder
         return this;
     }
 
-    public GraphicsPipelineDescriptionBuilder SetShaderSet(VertexLayoutDescription layout, Shader[] shader)
+    public GraphicsPipelineDescriptionBuilder SetShaderSet(VertexLayoutDescription[] layout, Shader[] shader)
     {
         description.ShaderSet = new ShaderSetDescription(Array.Empty<VertexLayoutDescription>(), Array.Empty<Shader>());
-        return AddShaderSet(layout, shader);
+        return PushShaderSet(layout, shader);
     }
 
     public GraphicsPipelineDescriptionBuilder SetShaderSet(VertexLayoutDescription layout, Shader shader)
     {
         description.ShaderSet = new ShaderSetDescription(Array.Empty<VertexLayoutDescription>(), Array.Empty<Shader>());
-        return AddShaderSet(layout, shader);
+        return PushShaderSet(layout, shader);
     }
 
     public GraphicsPipelineDescriptionBuilder SetShaderSet()
@@ -88,18 +88,18 @@ public class GraphicsPipelineDescriptionBuilder
         return this;
     }
 
-    public GraphicsPipelineDescriptionBuilder AddShaderSet(VertexLayoutDescription layout, Shader[] shader)
+    public GraphicsPipelineDescriptionBuilder PushShaderSet(VertexLayoutDescription[] layout, Shader[] shader)
     {
-        description.ShaderSet.VertexLayouts = addToImmutableArray(description.ShaderSet.VertexLayouts, layout);
-        description.ShaderSet.Shaders = addToImmutableArray(description.ShaderSet.Shaders, shader);
+        description.ShaderSet.VertexLayouts = ArrayExtensions.AddToImmutableArray(description.ShaderSet.VertexLayouts, layout);
+        description.ShaderSet.Shaders = ArrayExtensions.AddToImmutableArray(description.ShaderSet.Shaders, shader);
 
         return this;
     }
 
-    public GraphicsPipelineDescriptionBuilder AddShaderSet(VertexLayoutDescription layout, Shader shader)
+    public GraphicsPipelineDescriptionBuilder PushShaderSet(VertexLayoutDescription layout, Shader shader)
     {
-        description.ShaderSet.VertexLayouts = addToImmutableArray(description.ShaderSet.VertexLayouts, layout);
-        description.ShaderSet.Shaders = addToImmutableArray(description.ShaderSet.Shaders, shader);
+        description.ShaderSet.VertexLayouts = ArrayExtensions.AddToImmutableArray(description.ShaderSet.VertexLayouts, layout);
+        description.ShaderSet.Shaders = ArrayExtensions.AddToImmutableArray(description.ShaderSet.Shaders, shader);
 
         return this;
     }
@@ -113,22 +113,5 @@ public class GraphicsPipelineDescriptionBuilder
     public GraphicsPipelineDescription Build()
     {
         return description;
-    }
-
-    // TODO: move this to its own utilities folder
-    private static T[] addToImmutableArray<T>(IEnumerable<T> values, T value)
-    {
-        var list = values.ToList();
-        list.Add(value);
-
-        return list.ToArray();
-    }
-
-    private static T[] addToImmutableArray<T>(IEnumerable<T> values, T[] value)
-    {
-        var list = values.ToList();
-        list.AddRange(value);
-
-        return list.ToArray();
     }
 }

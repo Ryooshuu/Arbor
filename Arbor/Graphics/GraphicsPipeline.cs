@@ -1,11 +1,12 @@
 ﻿using System.Runtime.InteropServices;
-using System.Text;
 using Arbor.Caching;
 using Arbor.Graphics.Commands;
-using Arbor.Graphics.Utils;
-using Arbor.Graphics.Vertices;
+using Arbor.Graphics.Shaders;
+using Arbor.Graphics.Shaders.Vertices;
+using Arbor.Utils;
 using Veldrid;
 using Veldrid.SPIRV;
+using Shader = Arbor.Graphics.Shaders.Shader;
 
 namespace Arbor.Graphics;
 
@@ -26,16 +27,11 @@ public class GraphicsPipeline : IDisposable
     {
         this.device = device;
     }
-
-    public void Flush()
+    
+    internal void Initialize()
     {
-        while (drawStack.TryPop(out var command))
-        {
-            command.Execute(commandList);
-        }
-
-        device.SubmitCommands(commandList);
-        device.SwapBuffers();
+        commandList = device.ResourceFactory.CreateCommandList();
+        createDefaultPipeline();
     }
 
     #region Drawing API
@@ -43,6 +39,27 @@ public class GraphicsPipeline : IDisposable
     public void Start()
     {
         drawStack.Push(new DrawStart(this));
+    }
+
+    public void BindShader(ShaderPair pair)
+    {
+        var compiledShaders = pair.GetCompiledShaders(this);
+        var vertexLayouts = pair.CreateVertexLayouts();
+        var resourceLayouts = pair.CreateResourceLayouts().Select(factory.CreateResourceLayout).ToArray();
+
+        var builder = new GraphicsPipelineDescriptionBuilder(defaultPipelineDescription);
+        builder.PushShaderSet(vertexLayouts.ToArray(), new[] { compiledShaders.Vertex, compiledShaders.Fragment! });
+        builder.PushResourceLayouts(resourceLayouts);
+
+        var shaderPipeline = createPipeline(builder.Build());
+        pipeline.Value = shaderPipeline;
+        drawStack.Push(new DrawSetPipeline(this, GetPipeline()));
+    }
+
+    public void UnbindShader()
+    {
+        pipeline.Invalidate();
+        drawStack.Push(new DrawSetPipeline(this, GetPipeline()));
     }
 
     public void DrawVertexBuffer(IVertexBuffer buffer)
@@ -54,6 +71,17 @@ public class GraphicsPipeline : IDisposable
     public void End()
     {
         drawStack.Push(new DrawEnd(this));
+    }
+    
+    public void Flush()
+    {
+        while (drawStack.TryPop(out var command))
+        {
+            command.Execute(commandList);
+        }
+
+        device.SubmitCommands(commandList);
+        device.SwapBuffers();
     }
 
     #endregion
@@ -79,13 +107,23 @@ public class GraphicsPipeline : IDisposable
         return buffer;
     }
 
-    #endregion
-
-    internal void Initialize()
+    public ResourceSet CreateResourceSet(ResourceLayoutElementDescription[] descriptions, BindableResource[] resources)
     {
-        commandList = device.ResourceFactory.CreateCommandList();
-        createDefaultPipeline();
+        var layout = factory.CreateResourceLayout(new ResourceLayoutDescription(descriptions));
+        return factory.CreateResourceSet(new ResourceSetDescription(layout, resources));
     }
+
+    public IEnumerable<Veldrid.Shader> CompileShaders(Shader vertex, Shader fragment)
+    {
+        return factory.CreateFromSpirv(vertex.CreateShaderDescription(), fragment.CreateShaderDescription());
+    }
+
+    public IEnumerable<Veldrid.Shader> CompileShaders(Shader compute)
+    {
+        return new[] { factory.CreateFromSpirv(compute.CreateShaderDescription()) };
+    }
+
+    #endregion
 
     #region Veldrid Pipeline
 
@@ -121,49 +159,13 @@ public class GraphicsPipeline : IDisposable
            .SetShaderSet()
            .SetOutput(device.SwapchainFramebuffer.OutputDescription);
 
-        // TEMPORARY //
-
-        const string vertex_code = @"
-#version 450
-
-layout(location = 0) in vec2 Position;
-layout(location = 1) in vec4 Color;
-
-layout(location = 0) out vec4 fsin_Color;
-
-void main()
-{
-    gl_Position = vec4(Position, 0, 1);
-    fsin_Color = Color;
-}";
-
-        const string fragment_code = @"
-#version 450
-
-layout(location = 0) in vec4 fsin_Color;
-layout(location = 0) out vec4 fsout_Color;
-
-void main()
-{
-    fsout_Color = fsin_Color;
-}";
-
-        var vertexShaderDesc = new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(vertex_code), "main");
-        var fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(fragment_code), "main");
-        var shaders = factory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc);
-
-        // TEMPORARY //
-
-        builder.AddShaderSet(
-            new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
-                new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4)
-            ),
-            shaders
-        );
-
         defaultPipelineDescription = builder.Build();
-        return device.ResourceFactory.CreateGraphicsPipeline(defaultPipelineDescription);
+        return createPipeline(defaultPipelineDescription);
+    }
+
+    private Pipeline createPipeline(GraphicsPipelineDescription description)
+    {
+        return device.ResourceFactory.CreateGraphicsPipeline(description);
     }
 
     #endregion
