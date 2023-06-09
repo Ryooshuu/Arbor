@@ -2,6 +2,7 @@
 using Arbor.Caching;
 using Arbor.Graphics.Commands;
 using Arbor.Graphics.Shaders;
+using Arbor.Graphics.Shaders.Uniforms;
 using Arbor.Graphics.Shaders.Vertices;
 using Arbor.Utils;
 using Veldrid;
@@ -31,6 +32,7 @@ public class GraphicsPipeline : IDisposable
     internal void Initialize()
     {
         commandList = device.ResourceFactory.CreateCommandList();
+        GlobalPropertyManager.Init(this);
         createDefaultPipeline();
     }
 
@@ -60,6 +62,12 @@ public class GraphicsPipeline : IDisposable
     {
         pipeline.Invalidate();
         drawStack.Push(new DrawSetPipeline(this, GetPipeline()));
+    }
+
+    public void SetGlobalUniform<T>(GlobalProperties property, T value)
+        where T : unmanaged
+    {
+        GlobalPropertyManager.Set(commandList, property, value);
     }
 
     public void DrawVertexBuffer(IVertexBuffer buffer)
@@ -102,15 +110,25 @@ public class GraphicsPipeline : IDisposable
             bufferSize = size.Value;
 
         var buffer = factory.CreateBuffer(new BufferDescription(bufferSize, usage));
-        device.UpdateBuffer(buffer, 0, values);
+        if (values.Length > 0)
+            device.UpdateBuffer(buffer, 0, values);
 
         return buffer;
     }
 
+    public ResourceLayout CreateResourceLayout(ResourceLayoutElementDescription[] descriptions)
+    {
+        return factory.CreateResourceLayout(new ResourceLayoutDescription(descriptions));
+    }
+
+    public ResourceSet CreateResourceSet(ResourceLayout layout, BindableResource[] resources)
+    {
+        return factory.CreateResourceSet(new ResourceSetDescription(layout, resources));
+    }
+
     public ResourceSet CreateResourceSet(ResourceLayoutElementDescription[] descriptions, BindableResource[] resources)
     {
-        var layout = factory.CreateResourceLayout(new ResourceLayoutDescription(descriptions));
-        return factory.CreateResourceSet(new ResourceSetDescription(layout, resources));
+        return CreateResourceSet(CreateResourceLayout(descriptions), resources);
     }
 
     public IEnumerable<Veldrid.Shader> CompileShaders(Shader vertex, Shader fragment)
@@ -155,7 +173,7 @@ public class GraphicsPipeline : IDisposable
             })
            .SetPrimitiveTopology(PrimitiveTopology.TriangleStrip)
            .SetBlendState(BlendStateDescription.SingleAlphaBlend)
-           .SetResourceLayouts()
+           .SetResourceLayouts(new[] { GlobalPropertyManager.GlobalResourceLayout })
            .SetShaderSet()
            .SetOutput(device.SwapchainFramebuffer.OutputDescription);
 
@@ -175,6 +193,7 @@ public class GraphicsPipeline : IDisposable
         foreach (var b in aliveVertexBuffers)
             b.Dispose();
 
+        GlobalPropertyManager.Dispose();
         commandList.Dispose();
         device.Dispose();
 

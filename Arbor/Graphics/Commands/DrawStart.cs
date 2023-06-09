@@ -1,4 +1,5 @@
-﻿using Veldrid;
+﻿using Arbor.Graphics.Shaders.Uniforms;
+using Veldrid;
 
 namespace Arbor.Graphics.Commands;
 
@@ -15,5 +16,6 @@ public class DrawStart : DrawCommand
         cl.SetFramebuffer(Pipeline.GetSwapchainFramebuffer());
         cl.ClearColorTarget(0, RgbaFloat.Black);
         cl.SetPipeline(Pipeline.GetPipeline());
+        cl.SetGraphicsResourceSet(0, GlobalPropertyManager.GlobalResourceSet);
     }
 }

@@ -1,9 +1,12 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
+using Arbor.Caching;
 using Arbor.Graphics;
 using Arbor.Graphics.Shaders;
 using Arbor.Graphics.Shaders.Basic;
+using Arbor.Graphics.Shaders.Uniforms;
 using Arbor.Graphics.Shaders.Vertices;
+using GlmSharp;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
@@ -71,32 +74,56 @@ public class Window : IDisposable
         var options = new GraphicsDeviceOptions { PreferStandardClipSpaceYDirection = true };
         VeldridStartup.CreateWindowAndGraphicsDevice(createInfo, options, out window, out device);
 
+        window.Resized += () =>
+        {
+            device.ResizeMainWindow((uint) window.Width, (uint) window.Height);
+            invalidatePixelMatrix();
+        };
+
         pipeline = new GraphicsPipeline(device);
         
         buffer = new VertexBuffer<VertexPositionColour>(pipeline);
         var color = RgbaFloat.Red;
         
-        buffer.Add(new VertexPositionColour(new Vector2(-0.75f, 0.75f), color));
-        buffer.Add(new VertexPositionColour(new Vector2(0.75f, 0.75f), color));
-        buffer.Add(new VertexPositionColour(new Vector2(-0.75f, -0.75f), color));
-        buffer.Add(new VertexPositionColour(new Vector2(0.75f, -0.75f), color));
+        buffer.Add(new VertexPositionColour(new Vector2(0 + 20, 0 + 20), color));
+        buffer.Add(new VertexPositionColour(new Vector2(50 + 20, 0 + 20), color));
+        buffer.Add(new VertexPositionColour(new Vector2(0 + 20, 50 + 20), color));
+        buffer.Add(new VertexPositionColour(new Vector2(50 + 20, 50 + 20), color));
 
         shader = new ShaderSet(new BasicVertexShader(), new BasicFragmentShader());
+        
+        invalidatePixelMatrix();
     }
 
     #endregion
 
     #region Drawing
 
+    private mat4 pixelMatrix;
+    private readonly Cached pixelMatrixBufferCache = new();
+
     private void draw(double dt)
     {
         pipeline.Start();
+        
+        if (!pixelMatrixBufferCache.IsValid)
+        {
+            pipeline.SetGlobalUniform(GlobalProperties.PixelMatrix, pixelMatrix);
+            pixelMatrixBufferCache.Validate();
+        }
+        
         pipeline.BindShader(shader);
         pipeline.DrawVertexBuffer(buffer);
         pipeline.UnbindShader();
         pipeline.End();
 
         pipeline.Flush();
+    }
+    
+    private void invalidatePixelMatrix()
+    {
+        pixelMatrix = mat4.Ortho(0, window.Width, window.Height, 0, -1, 1);
+        pixelMatrixBufferCache.Invalidate();
     }
 
     #endregion
