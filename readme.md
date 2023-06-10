@@ -1,7 +1,7 @@
 <div align="center">
-    <img src=".github/logo.png" alt="Arbor" width="500"/>
+<img src=".github/logo.png" alt="Arbor" width="500"/>
 
-    *Where imagination blossoms*
+*Where imagination blossoms*
 </div>
 
 ---
