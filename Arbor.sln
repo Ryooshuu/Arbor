@@ -5,6 +5,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution Files", "{F25A9D15-A7A5-4AC7-B0B4-80FFAD645D33}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		readme.md = readme.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbor.Resources", "Arbor.Resources\Arbor.Resources.csproj", "{33778F9D-4869-48FE-811F-148C234F7AFE}"
