@@ -3,13 +3,13 @@ using Veldrid;
 
 namespace Arbor.Graphics.Commands;
 
-public class DrawUpdateGlobalUniform<T> : DrawCommand
+public class UpdateGlobalUniform<T> : DrawCommand
     where T : unmanaged
 {
     private readonly GlobalProperties property;
     private readonly T value;
 
-    public DrawUpdateGlobalUniform(GraphicsPipeline pipeline, GlobalProperties property, T value)
+    public UpdateGlobalUniform(GraphicsPipeline pipeline, GlobalProperties property, T value)
         : base(pipeline)
     {
         this.property = property;

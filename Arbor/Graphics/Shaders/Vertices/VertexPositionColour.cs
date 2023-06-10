@@ -1,5 +1,5 @@
-﻿using System.Numerics;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
+using GlmSharp;
 using Veldrid;
 
 namespace Arbor.Graphics.Shaders.Vertices;
@@ -7,10 +7,10 @@ namespace Arbor.Graphics.Shaders.Vertices;
 [StructLayout(LayoutKind.Sequential)]
 public struct VertexPositionColour
 {
-    public Vector2 Position;
+    public vec2 Position;
     public RgbaFloat Color;
 
-    public VertexPositionColour(Vector2 position, RgbaFloat color)
+    public VertexPositionColour(vec2 position, RgbaFloat color)
     {
         Position = position;
         Color = color;

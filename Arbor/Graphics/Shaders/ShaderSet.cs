@@ -4,14 +4,14 @@ namespace Arbor.Graphics.Shaders;
 
 public class ShaderSet
 {
-    private readonly Shader[] shaders;
     private readonly ShaderSetDefinition definition;
 
     private CompiledShaderSet? cachedCompiledShaders;
 
-    public Shader Vertex => shaders[0];
-    public Shader? Fragment => shaders[1];
-    public Shader Compute => shaders[0];
+    public Shader Vertex => Shaders[0];
+    public Shader? Fragment => Shaders[1];
+    public Shader Compute => Shaders[0];
+    public Shader[] Shaders { get; }
 
     public ShaderSet(Shader vertex, Shader fragment)
         : this(ShaderSetDefinition.VertexFragment, new[] { vertex, fragment })
@@ -36,7 +36,7 @@ public class ShaderSet
         if (shaders.Length > 2)
             throw new ArgumentException($"{nameof(shaders)} cannot have a length longer than 2.");
 
-        this.shaders = shaders;
+        Shaders = shaders;
     }
 
     public CompiledShaderSet GetCompiledShaders(GraphicsPipeline pipeline)
@@ -64,11 +64,11 @@ public class ShaderSet
     }
 
     public IEnumerable<VertexLayoutDescription> CreateVertexLayouts()
-        => shaders.Select(s => new VertexLayoutDescription(s.CreateVertexDescriptions()))
+        => Shaders.Select(s => new VertexLayoutDescription(s.CreateVertexDescriptions()))
            .Where(l => l.Elements.Length > 0);
 
     public IEnumerable<ResourceLayoutDescription> CreateResourceLayouts()
-        => shaders.Select(s => new ResourceLayoutDescription(s.CreateResourceDescriptions()))
+        => Shaders.Select(s => new ResourceLayoutDescription(s.CreateResourceDescriptions()))
            .Where(l => l.Elements.Length > 0);
 }
 

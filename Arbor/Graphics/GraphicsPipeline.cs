@@ -6,6 +6,7 @@ using Arbor.Graphics.Shaders.Uniforms;
 using Arbor.Graphics.Shaders.Vertices;
 using Arbor.Utils;
 using Veldrid;
+using Veldrid.ImageSharp;
 using Veldrid.SPIRV;
 using Shader = Veldrid.Shader;
 
@@ -55,19 +56,34 @@ public class GraphicsPipeline : IDisposable
 
         var shaderPipeline = createPipeline(builder.Build());
         pipeline.Value = shaderPipeline;
-        drawStack.Push(new DrawSetPipeline(this, GetPipeline()));
+        drawStack.Push(new SetPipeline(this, GetPipeline()));
+
+        uint slot = 1;
+        
+        foreach (var shader in set.Shaders)
+        {
+            var descriptions = shader.CreateResourceDescriptions();
+            if (!descriptions.Any())
+                continue;
+            
+            var resourceLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(descriptions));
+            var resourceSet = factory.CreateResourceSet(new ResourceSetDescription(resourceLayout, shader.CreateBindableResources()));
+            
+            drawStack.Push(new BindResourceSet(this, slot, resourceSet));
+            slot++;
+        }
     }
 
     public void UnbindShader()
     {
         pipeline.Invalidate();
-        drawStack.Push(new DrawSetPipeline(this, GetPipeline()));
+        drawStack.Push(new SetPipeline(this, GetPipeline()));
     }
 
     public void SetGlobalUniform<T>(GlobalProperties property, T value)
         where T : unmanaged
     {
-        drawStack.Push(new DrawUpdateGlobalUniform<T>(this, property, value));
+        drawStack.Push(new UpdateGlobalUniform<T>(this, property, value));
     }
 
     public void DrawVertexBuffer(IVertexBuffer buffer)
@@ -97,6 +113,9 @@ public class GraphicsPipeline : IDisposable
     public Framebuffer GetSwapchainFramebuffer()
         => device.SwapchainFramebuffer;
 
+    public Sampler GetDefaultSampler()
+        => device.Aniso4xSampler;
+
     public DeviceBuffer CreateBuffer<T>(T[] values, BufferUsage usage, uint? size = null)
         where T : unmanaged
     {
@@ -110,6 +129,12 @@ public class GraphicsPipeline : IDisposable
             device.UpdateBuffer(buffer, 0, values);
 
         return buffer;
+    }
+
+    public TextureView CreateDeviceTextureView(ImageSharpTexture texture)
+    {
+        var text = texture.CreateDeviceTexture(device, factory);
+        return factory.CreateTextureView(text);
     }
 
     public ResourceLayout CreateResourceLayout(ResourceLayoutElementDescription[] descriptions)

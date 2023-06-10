@@ -2,11 +2,11 @@ using Veldrid;
 
 namespace Arbor.Graphics.Commands;
 
-public class DrawSetPipeline : DrawCommand
+public class SetPipeline : DrawCommand
 {
     private readonly Pipeline veldridPipeline;
 
-    public DrawSetPipeline(GraphicsPipeline pipeline, Pipeline veldridPipeline)
+    public SetPipeline(GraphicsPipeline pipeline, Pipeline veldridPipeline)
         : base(pipeline)
     {
         this.veldridPipeline = veldridPipeline;

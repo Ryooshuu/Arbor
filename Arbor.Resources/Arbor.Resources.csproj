@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="Shaders/**/*"/>
+        <EmbeddedResource Include="Shaders/**/*" />
     </ItemGroup>
 
 </Project>
