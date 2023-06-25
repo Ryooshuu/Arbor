@@ -2,7 +2,7 @@ using Veldrid;
 
 namespace Arbor.Graphics.Shaders;
 
-public class ShaderSet : IShaderSet
+public class ShaderSet : IDisposable, IShaderSet
 {
     private readonly ShaderSetDefinition definition;
     
@@ -64,6 +64,11 @@ public class ShaderSet : IShaderSet
 
     public IEnumerable<ResourceLayoutDescription> CreateResourceLayouts()
         => new ResourceLayoutDescription[] { new(Fragment?.CreateResourceDescriptions()) };
+
+    public void Dispose()
+    {
+        cachedCompiledShaders?.Dispose();
+    }
 }
 
 public class CompiledShaderSet : IDisposable
