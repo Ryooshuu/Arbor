@@ -2,7 +2,7 @@
 using Arbor.Caching;
 using Arbor.Graphics;
 using Arbor.Graphics.Shaders;
-using Arbor.Graphics.Shaders.Basic;
+using Arbor.Graphics.Shaders.Basics;
 using Arbor.Graphics.Shaders.Uniforms;
 using Arbor.Graphics.Shaders.Vertices;
 using GlmSharp;
@@ -67,7 +67,7 @@ public class Window : IDisposable
     private GraphicsDevice device = null!;
 
     private VertexBuffer<VertexUvColour> buffer = null!;
-    private ShaderSet shader = null!;
+    private IShaderSet shader = null!;
 
     private void createWindow()
     {
@@ -92,13 +92,8 @@ public class Window : IDisposable
         buffer.Add(new VertexUvColour(new vec2(0 + 20, size + 20), new vec2(0, 1), color));
         buffer.Add(new VertexUvColour(new vec2(size + 20, size + 20), new vec2(1, 1), color));
 
-        shader = new ShaderSet(new TexturedVertexShader(), new TexturedFragmentShader());
-
         var imageSharpTexture = new ImageSharpTexture(@"D:\Projects\Projects\Arbor\Arbor.Resources\Textures\10-wKGO250UVi.png");
-
-        var fragment = shader.Fragment as TexturedFragmentShader;
-        fragment!.TextureSampler = pipeline.GetDefaultSampler();
-        fragment.TextureView =  pipeline.CreateDeviceTextureView(imageSharpTexture);
+        shader = new ShaderSet(new TexturedVertexShader(), new TexturedFragmentShader(pipeline.CreateDeviceTextureView(imageSharpTexture), pipeline.GetDefaultSampler()));
 
         invalidatePixelMatrix();
     }

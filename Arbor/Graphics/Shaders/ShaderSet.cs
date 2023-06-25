@@ -2,34 +2,30 @@ using Veldrid;
 
 namespace Arbor.Graphics.Shaders;
 
-public class ShaderSet
+public class ShaderSet : IShaderSet
 {
     private readonly ShaderSetDefinition definition;
-
+    
     private CompiledShaderSet? cachedCompiledShaders;
-
-    public Shader Vertex => Shaders[0];
-    public Shader? Fragment => Shaders[1];
-    public Shader Compute => Shaders[0];
-    public Shader[] Shaders { get; }
-
-    public ShaderSet(Shader vertex, Shader fragment)
-        : this(ShaderSetDefinition.VertexFragment, new[] { vertex, fragment })
+    
+    public IVertexShader? Vertex => Shaders[0] as IVertexShader;
+    public IBindableShader? Fragment => Shaders[1] as IBindableShader;
+    public IShader? Compute => Shaders[0];
+    public IShader[] Shaders { get; }
+    
+    public ShaderSet(IVertexShader vertex, IBindableShader fragment)
+        : this(ShaderSetDefinition.VertexFragment, new IShader[] { vertex, fragment })
     {
-        if (!vertex.Stage.HasFlag(ShaderStages.Vertex))
-            throw new ArgumentException($"Shader must be of type \"{nameof(ShaderStages.Vertex)}\".", nameof(vertex));
-        if (!fragment.Stage.HasFlag(ShaderStages.Fragment))
-            throw new ArgumentException($"Shader must be of type \"{nameof(ShaderStages.Fragment)}\".", nameof(fragment));
     }
-
-    public ShaderSet(Shader compute)
+    
+    public ShaderSet(IShader compute)
         : this(ShaderSetDefinition.Compute, new[] { compute })
     {
         if (!compute.Stage.HasFlag(ShaderStages.Compute))
             throw new ArgumentException($"Shader must be of type \"{nameof(ShaderStages.Compute)}\".", nameof(compute));
     }
-
-    private ShaderSet(ShaderSetDefinition definition, Shader[] shaders)
+    
+    private ShaderSet(ShaderSetDefinition definition, IShader[] shaders)
     {
         this.definition = definition;
 
@@ -38,7 +34,7 @@ public class ShaderSet
 
         Shaders = shaders;
     }
-
+    
     public CompiledShaderSet GetCompiledShaders(GraphicsPipeline pipeline)
     {
         if (cachedCompiledShaders != null)
@@ -55,8 +51,8 @@ public class ShaderSet
     {
         var compiledShaders = definition switch
         {
-            ShaderSetDefinition.VertexFragment => pipeline.CompileShaders(Vertex, Fragment!),
-            ShaderSetDefinition.Compute => pipeline.CompileShaders(Compute),
+            ShaderSetDefinition.VertexFragment => pipeline.CompileShaders(Vertex!, Fragment!),
+            ShaderSetDefinition.Compute => pipeline.CompileShaders(Compute!),
             _ => throw new Exception("Unknown shader definition type")
         };
 
@@ -64,12 +60,10 @@ public class ShaderSet
     }
 
     public IEnumerable<VertexLayoutDescription> CreateVertexLayouts()
-        => Shaders.Select(s => new VertexLayoutDescription(s.CreateVertexDescriptions()))
-           .Where(l => l.Elements.Length > 0);
+        => new VertexLayoutDescription[] { new(Vertex?.CreateVertexDescriptions()) };
 
     public IEnumerable<ResourceLayoutDescription> CreateResourceLayouts()
-        => Shaders.Select(s => new ResourceLayoutDescription(s.CreateResourceDescriptions()))
-           .Where(l => l.Elements.Length > 0);
+        => new ResourceLayoutDescription[] { new(Fragment?.CreateResourceDescriptions()) };
 }
 
 public class CompiledShaderSet : IDisposable

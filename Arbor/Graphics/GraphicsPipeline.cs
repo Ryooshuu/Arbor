@@ -44,7 +44,7 @@ public class GraphicsPipeline : IDisposable
         drawStack.Push(new DrawStart(this));
     }
 
-    public void BindShader(ShaderSet set)
+    public void BindShader(IShaderSet set)
     {
         var compiledShaders = set.GetCompiledShaders(this);
         var vertexLayouts = set.CreateVertexLayouts();
@@ -62,12 +62,15 @@ public class GraphicsPipeline : IDisposable
         
         foreach (var shader in set.Shaders)
         {
-            var descriptions = shader.CreateResourceDescriptions();
+            if (shader is not IBindableShader bindableShader)
+                continue;
+            
+            var descriptions = bindableShader.CreateResourceDescriptions();
             if (!descriptions.Any())
                 continue;
             
             var resourceLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(descriptions));
-            var resourceSet = factory.CreateResourceSet(new ResourceSetDescription(resourceLayout, shader.CreateBindableResources()));
+            var resourceSet = factory.CreateResourceSet(new ResourceSetDescription(resourceLayout, bindableShader.CreateBindableResources()));
             
             drawStack.Push(new BindResourceSet(this, slot, resourceSet));
             slot++;
@@ -146,12 +149,12 @@ public class GraphicsPipeline : IDisposable
     public ResourceSet CreateResourceSet(ResourceLayoutElementDescription[] descriptions, BindableResource[] resources)
         => CreateResourceSet(CreateResourceLayout(descriptions), resources);
 
-    public IEnumerable<Shader> CompileShaders(Shaders.Shader vertex, Shaders.Shader fragment)
-        => factory.CreateFromSpirv(vertex.CreateShaderDescription(), fragment.CreateShaderDescription());
+    public IEnumerable<Shader> CompileShaders(IVertexShader vertex, IBindableShader fragment)
+        => factory.CreateFromSpirv(vertex.CreateShaderDescriptionInternal(), fragment.CreateShaderDescriptionInternal());
 
-    public IEnumerable<Shader> CompileShaders(Shaders.Shader compute)
+    public IEnumerable<Shader> CompileShaders(IShader compute)
     {
-        return new[] { factory.CreateFromSpirv(compute.CreateShaderDescription()) };
+        return new[] { factory.CreateFromSpirv(compute.CreateShaderDescriptionInternal()) };
     }
 
     #endregion

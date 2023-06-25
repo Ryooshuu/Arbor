@@ -6,21 +6,20 @@ using Veldrid;
 
 namespace Arbor.Graphics.Shaders;
 
-public abstract class Shader : IDisposable
+public abstract class Shader : IShader, IDisposable
 {
-    public abstract ShaderStages Stage { get; }
+    public ShaderStages Stage { get; private set; }
 
-    public abstract ShaderDescription CreateShaderDescription();
+    protected abstract ShaderDescription CreateShaderDescription();
 
-    public virtual VertexElementDescription[] CreateVertexDescriptions()
-        => Array.Empty<VertexElementDescription>();
-
-    public virtual ResourceLayoutElementDescription[] CreateResourceDescriptions()
-        => Array.Empty<ResourceLayoutElementDescription>();
-
-    public virtual BindableResource[] CreateBindableResources()
-        => Array.Empty<BindableResource>();
-
+    ShaderDescription IShader.CreateShaderDescriptionInternal()
+    {
+        var properties = CreateShaderDescription();
+        Stage = properties.Stage;
+        
+        return properties;
+    }
+    
     protected byte[] ReadFromResource(string path, Assembly assembly)
     {
         using var stream = ResourceManager.ReadFromResource($"Shaders/{path}", assembly);
