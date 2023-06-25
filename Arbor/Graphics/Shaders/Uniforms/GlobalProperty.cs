@@ -18,7 +18,7 @@ public class GlobalProperty<T> : IGlobalProperty
         Property = property;
     }
 
-    public void Init(GraphicsPipeline pipeline)
+    public void Init(DevicePipeline pipeline)
     {
         Buffer = pipeline.CreateBuffer(Array.Empty<T>(), BufferUsage.UniformBuffer | BufferUsage.Dynamic, size);
     }

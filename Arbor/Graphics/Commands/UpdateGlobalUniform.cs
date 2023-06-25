@@ -9,7 +9,7 @@ public class UpdateGlobalUniform<T> : DrawCommand
     private readonly GlobalProperties property;
     private readonly T value;
 
-    public UpdateGlobalUniform(GraphicsPipeline pipeline, GlobalProperties property, T value)
+    public UpdateGlobalUniform(DrawPipeline pipeline, GlobalProperties property, T value)
         : base(pipeline)
     {
         this.property = property;

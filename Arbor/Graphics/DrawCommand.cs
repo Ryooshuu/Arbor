@@ -4,9 +4,9 @@ namespace Arbor.Graphics;
 
 public abstract class DrawCommand
 {
-    protected GraphicsPipeline Pipeline { get; }
+    protected DrawPipeline Pipeline { get; }
 
-    protected DrawCommand(GraphicsPipeline pipeline)
+    protected DrawCommand(DrawPipeline pipeline)
     {
         Pipeline = pipeline;
     }

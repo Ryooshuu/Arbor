@@ -5,7 +5,7 @@ namespace Arbor.Graphics.Commands;
 
 public class DrawStart : DrawCommand
 {
-    public DrawStart(GraphicsPipeline pipeline)
+    public DrawStart(DrawPipeline pipeline)
         : base(pipeline)
     {
     }
@@ -13,7 +13,7 @@ public class DrawStart : DrawCommand
     public override void Execute(CommandList cl)
     {
         cl.Begin();
-        cl.SetFramebuffer(Pipeline.GetSwapchainFramebuffer());
+        cl.SetFramebuffer(Pipeline.DevicePipeline.GetSwapchainFramebuffer());
         cl.ClearColorTarget(0, RgbaFloat.Black);
         cl.SetPipeline(Pipeline.GetPipeline());
         cl.SetGraphicsResourceSet(0, GlobalPropertyManager.GlobalResourceSet);

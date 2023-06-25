@@ -7,7 +7,7 @@ public class BindResourceSet : DrawCommand
     private readonly uint slot;
     private readonly ResourceSet? set;
 
-    public BindResourceSet(GraphicsPipeline pipeline, uint slot, ResourceSet? set)
+    public BindResourceSet(DrawPipeline pipeline, uint slot, ResourceSet? set)
         : base(pipeline)
     {
         this.slot = slot;

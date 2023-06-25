@@ -6,7 +6,7 @@ public class SetPipeline : DrawCommand
 {
     private readonly Pipeline veldridPipeline;
 
-    public SetPipeline(GraphicsPipeline pipeline, Pipeline veldridPipeline)
+    public SetPipeline(DrawPipeline pipeline, Pipeline veldridPipeline)
         : base(pipeline)
     {
         this.veldridPipeline = veldridPipeline;

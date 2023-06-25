@@ -4,7 +4,7 @@ namespace Arbor.Graphics.Commands;
 
 public class DrawEnd : DrawCommand
 {
-    public DrawEnd(GraphicsPipeline pipeline)
+    public DrawEnd(DrawPipeline pipeline)
         : base(pipeline)
     {
     }

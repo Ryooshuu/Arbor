@@ -45,7 +45,7 @@ public static class GlobalPropertyManager
         return sb + "\n" + source;
     }
 
-    internal static void Init(GraphicsPipeline pipeline)
+    internal static void Init(DevicePipeline pipeline)
     {
         foreach (var property in global_properties)
         {

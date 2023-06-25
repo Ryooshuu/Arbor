@@ -16,7 +16,7 @@ namespace Arbor;
 public class Window : IDisposable
 {
     private readonly WindowCreateInfo createInfo;
-    private GraphicsPipeline pipeline = null!;
+    private DevicePipeline pipeline = null!;
 
     private Stopwatch stopwatch = null!;
     private double previouslyElapsed;
@@ -41,7 +41,6 @@ public class Window : IDisposable
     public void Run()
     {
         createWindow();
-        pipeline.Initialize();
 
         stopwatch = Stopwatch.StartNew();
         previouslyElapsed = stopwatch.ElapsedMilliseconds;
@@ -80,7 +79,7 @@ public class Window : IDisposable
             invalidatePixelMatrix();
         };
 
-        pipeline = new GraphicsPipeline(device);
+        pipeline = new DevicePipeline(device);
 
         buffer = new VertexBuffer<VertexUvColour>(pipeline);
         var color = RgbaFloat.White;
@@ -104,23 +103,24 @@ public class Window : IDisposable
 
     private mat4 pixelMatrix;
     private readonly Cached pixelMatrixBufferCache = new();
+    private DrawPipeline drawPipeline => pipeline.DrawPipeline;
 
     private void draw(double dt)
     {
-        pipeline.Start();
+        drawPipeline.Start();
 
         if (!pixelMatrixBufferCache.IsValid)
         {
-            pipeline.SetGlobalUniform(GlobalProperties.PixelMatrix, pixelMatrix);
+            drawPipeline.SetGlobalUniform(GlobalProperties.PixelMatrix, pixelMatrix);
             pixelMatrixBufferCache.Validate();
         }
 
-        pipeline.BindShader(shader);
-        pipeline.DrawVertexBuffer(buffer);
-        pipeline.UnbindShader();
-        pipeline.End();
+        drawPipeline.BindShader(shader);
+        drawPipeline.DrawVertexBuffer(buffer);
+        drawPipeline.UnbindShader();
+        drawPipeline.End();
 
-        pipeline.Flush();
+        drawPipeline.Flush();
     }
 
     private void invalidatePixelMatrix()

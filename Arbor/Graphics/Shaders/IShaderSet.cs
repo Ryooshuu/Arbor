@@ -6,7 +6,7 @@ public interface IShaderSet
 {
     IShader[] Shaders { get; }
     
-    CompiledShaderSet GetCompiledShaders(GraphicsPipeline pipeline);
+    CompiledShaderSet GetCompiledShaders(DevicePipeline pipeline);
 
     IEnumerable<VertexLayoutDescription> CreateVertexLayouts();
     IEnumerable<ResourceLayoutDescription> CreateResourceLayouts();

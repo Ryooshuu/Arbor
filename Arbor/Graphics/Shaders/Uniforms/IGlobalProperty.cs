@@ -8,5 +8,5 @@ public interface IGlobalProperty : IDisposable
     public DeviceBuffer Buffer { get; }
     GlobalProperties Property { get; }
 
-    void Init(GraphicsPipeline pipeline);
+    void Init(DevicePipeline pipeline);
 }

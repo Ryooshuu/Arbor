@@ -1,4 +1,3 @@
-﻿using System.Runtime.InteropServices;
 using Arbor.Caching;
 using Arbor.Graphics.Commands;
 using Arbor.Graphics.Shaders;
@@ -6,39 +5,30 @@ using Arbor.Graphics.Shaders.Uniforms;
 using Arbor.Graphics.Shaders.Vertices;
 using Arbor.Utils;
 using Veldrid;
-using Veldrid.ImageSharp;
-using Veldrid.SPIRV;
-using Shader = Veldrid.Shader;
 
 namespace Arbor.Graphics;
 
-public class GraphicsPipeline : IDisposable
+public class DrawPipeline : IDisposable
 {
-    private readonly GraphicsDevice device;
     private readonly DrawStack drawStack = new();
 
-    private CommandList commandList = null!;
+    private readonly CommandList commandList;
     private GraphicsPipelineDescription defaultPipelineDescription;
     private readonly Cached<Pipeline> pipeline = new();
-
+    
     private readonly List<IVertexBuffer> aliveVertexBuffers = new();
-
-    private ResourceFactory factory => device.ResourceFactory;
-
-    public GraphicsPipeline(GraphicsDevice device)
+    
+    public DevicePipeline DevicePipeline { get; }
+    
+    public DrawPipeline(DevicePipeline pipeline)
     {
-        this.device = device;
-    }
-
-    internal void Initialize()
-    {
-        commandList = device.ResourceFactory.CreateCommandList();
-        GlobalPropertyManager.Init(this);
+        DevicePipeline = pipeline;
+        
+        commandList = DevicePipeline.Factory.CreateCommandList();
+        GlobalPropertyManager.Init(DevicePipeline);
         createDefaultPipeline();
     }
-
-    #region Drawing API
-
+    
     public void Start()
     {
         drawStack.Push(new DrawStart(this));
@@ -46,15 +36,15 @@ public class GraphicsPipeline : IDisposable
 
     public void BindShader(IShaderSet set)
     {
-        var compiledShaders = set.GetCompiledShaders(this);
+        var compiledShaders = set.GetCompiledShaders(DevicePipeline);
         var vertexLayouts = set.CreateVertexLayouts();
-        var resourceLayouts = set.CreateResourceLayouts().Select(factory.CreateResourceLayout).ToArray();
+        var resourceLayouts = set.CreateResourceLayouts().Select(DevicePipeline.Factory.CreateResourceLayout).ToArray();
 
         var builder = new GraphicsPipelineDescriptionBuilder(defaultPipelineDescription);
         builder.PushShaderSet(vertexLayouts.ToArray(), new[] { compiledShaders.Vertex, compiledShaders.Fragment! });
         builder.PushResourceLayouts(resourceLayouts);
 
-        var shaderPipeline = createPipeline(builder.Build());
+        var shaderPipeline = DevicePipeline.CreatePipeline(builder.Build());
         pipeline.Value = shaderPipeline;
         drawStack.Push(new SetPipeline(this, GetPipeline()));
 
@@ -69,8 +59,8 @@ public class GraphicsPipeline : IDisposable
             if (!descriptions.Any())
                 continue;
             
-            var resourceLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(descriptions));
-            var resourceSet = factory.CreateResourceSet(new ResourceSetDescription(resourceLayout, bindableShader.CreateBindableResources()));
+            var resourceLayout = DevicePipeline.Factory.CreateResourceLayout(new ResourceLayoutDescription(descriptions));
+            var resourceSet = DevicePipeline.Factory.CreateResourceSet(new ResourceSetDescription(resourceLayout, bindableShader.CreateBindableResources()));
             
             drawStack.Push(new BindResourceSet(this, slot, resourceSet));
             slot++;
@@ -104,61 +94,10 @@ public class GraphicsPipeline : IDisposable
     {
         while (drawStack.TryPop(out var command))
             command.Execute(commandList);
-
-        device.SubmitCommands(commandList);
-        device.SwapBuffers();
+        
+        DevicePipeline.Submit(commandList);
     }
-
-    #endregion
-
-    #region Device API
-
-    public Framebuffer GetSwapchainFramebuffer()
-        => device.SwapchainFramebuffer;
-
-    public Sampler GetDefaultSampler()
-        => device.Aniso4xSampler;
-
-    public DeviceBuffer CreateBuffer<T>(T[] values, BufferUsage usage, uint? size = null)
-        where T : unmanaged
-    {
-        var bufferSize = (uint) (values.Length * Marshal.SizeOf<T>());
-
-        if (size.HasValue)
-            bufferSize = size.Value;
-
-        var buffer = factory.CreateBuffer(new BufferDescription(bufferSize, usage));
-        if (values.Length > 0)
-            device.UpdateBuffer(buffer, 0, values);
-
-        return buffer;
-    }
-
-    public TextureView CreateDeviceTextureView(ImageSharpTexture texture)
-    {
-        var text = texture.CreateDeviceTexture(device, factory);
-        return factory.CreateTextureView(text);
-    }
-
-    public ResourceLayout CreateResourceLayout(ResourceLayoutElementDescription[] descriptions)
-        => factory.CreateResourceLayout(new ResourceLayoutDescription(descriptions));
-
-    public ResourceSet CreateResourceSet(ResourceLayout layout, BindableResource[] resources)
-        => factory.CreateResourceSet(new ResourceSetDescription(layout, resources));
-
-    public ResourceSet CreateResourceSet(ResourceLayoutElementDescription[] descriptions, BindableResource[] resources)
-        => CreateResourceSet(CreateResourceLayout(descriptions), resources);
-
-    public IEnumerable<Shader> CompileShaders(IVertexShader vertex, IBindableShader fragment)
-        => factory.CreateFromSpirv(vertex.CreateShaderDescriptionInternal(), fragment.CreateShaderDescriptionInternal());
-
-    public IEnumerable<Shader> CompileShaders(IShader compute)
-    {
-        return new[] { factory.CreateFromSpirv(compute.CreateShaderDescriptionInternal()) };
-    }
-
-    #endregion
-
+    
     #region Veldrid Pipeline
 
     public Pipeline GetPipeline()
@@ -191,14 +130,12 @@ public class GraphicsPipeline : IDisposable
            .SetBlendState(BlendStateDescription.SingleAlphaBlend)
            .SetResourceLayouts(new[] { GlobalPropertyManager.GlobalResourceLayout })
            .SetShaderSet()
-           .SetOutput(device.SwapchainFramebuffer.OutputDescription);
+           .SetOutput(DevicePipeline.GetSwapchainFramebuffer().OutputDescription);
+           // .SetOutput(device.SwapchainFramebuffer.OutputDescription);
 
         defaultPipelineDescription = builder.Build();
-        return createPipeline(defaultPipelineDescription);
+        return DevicePipeline.CreatePipeline(defaultPipelineDescription);
     }
-
-    private Pipeline createPipeline(GraphicsPipelineDescription description)
-        => device.ResourceFactory.CreateGraphicsPipeline(description);
 
     #endregion
 
@@ -209,7 +146,6 @@ public class GraphicsPipeline : IDisposable
 
         GlobalPropertyManager.Dispose();
         commandList.Dispose();
-        device.Dispose();
 
         if (pipeline.IsValid)
             pipeline.Value.Dispose();

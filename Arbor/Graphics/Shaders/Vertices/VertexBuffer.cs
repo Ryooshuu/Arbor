@@ -14,9 +14,9 @@ public class VertexBuffer<T> : IVertexBuffer
 
     public uint Length => (uint) indices.Length;
 
-    private readonly GraphicsPipeline pipeline;
+    private readonly DevicePipeline pipeline;
 
-    public VertexBuffer(GraphicsPipeline pipeline)
+    public VertexBuffer(DevicePipeline pipeline)
     {
         this.pipeline = pipeline;
     }

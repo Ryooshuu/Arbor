@@ -35,7 +35,7 @@ public class ShaderSet : IDisposable, IShaderSet
         Shaders = shaders;
     }
     
-    public CompiledShaderSet GetCompiledShaders(GraphicsPipeline pipeline)
+    public CompiledShaderSet GetCompiledShaders(DevicePipeline pipeline)
     {
         if (cachedCompiledShaders != null)
             return cachedCompiledShaders;
@@ -47,7 +47,7 @@ public class ShaderSet : IDisposable, IShaderSet
         return cachedCompiledShaders;
     }
 
-    private CompiledShaderSet compileShaders(GraphicsPipeline pipeline)
+    private CompiledShaderSet compileShaders(DevicePipeline pipeline)
     {
         var compiledShaders = definition switch
         {
