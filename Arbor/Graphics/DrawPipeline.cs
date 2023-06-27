@@ -16,8 +16,6 @@ public class DrawPipeline : IDisposable
     private GraphicsPipelineDescription defaultPipelineDescription;
     private readonly Cached<Pipeline> pipeline = new();
     
-    private readonly List<IVertexBuffer> aliveVertexBuffers = new();
-    
     public DevicePipeline DevicePipeline { get; }
     
     public DrawPipeline(DevicePipeline pipeline)
@@ -81,7 +79,6 @@ public class DrawPipeline : IDisposable
 
     public void DrawVertexBuffer(IVertexBuffer buffer)
     {
-        aliveVertexBuffers.Add(buffer);
         drawStack.Push(new DrawVertexBuffer(this, buffer));
     }
 
@@ -141,9 +138,6 @@ public class DrawPipeline : IDisposable
 
     public void Dispose()
     {
-        foreach (var b in aliveVertexBuffers)
-            b.Dispose();
-
         GlobalPropertyManager.Dispose();
         commandList.Dispose();
 
