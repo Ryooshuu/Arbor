@@ -4,7 +4,7 @@ using Veldrid;
 
 namespace Arbor.Graphics.Shaders.Basics;
 
-public class TexturedVertexShader : VertexShader<VertexUvColour>
+internal class TexturedVertexShader : VertexShader<VertexUvColour>
 {
     protected override ShaderDescription CreateShaderDescription()
     {

@@ -1,13 +1,9 @@
 ﻿using System.Diagnostics;
 using Arbor.Caching;
 using Arbor.Graphics;
-using Arbor.Graphics.Shaders;
-using Arbor.Graphics.Shaders.Basics;
 using Arbor.Graphics.Shaders.Uniforms;
-using Arbor.Graphics.Shaders.Vertices;
 using GlmSharp;
 using Veldrid;
-using Veldrid.ImageSharp;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
 
@@ -16,13 +12,15 @@ namespace Arbor;
 public class Window : IDisposable
 {
     private readonly WindowCreateInfo createInfo;
-    private DevicePipeline pipeline = null!;
+    private Game? runningGame;
 
     private Stopwatch stopwatch = null!;
     private double previouslyElapsed;
 
     private const int target_fps = 60;
     private const float fps_time = 1000f / target_fps;
+
+    internal DevicePipeline Pipeline = null!;
 
     #region Constructor
 
@@ -38,8 +36,11 @@ public class Window : IDisposable
 
     #endregion
 
-    public void Run()
+    public void Run(Game game)
     {
+        runningGame = game;
+        runningGame.Window = this;
+
         createWindow();
 
         stopwatch = Stopwatch.StartNew();
@@ -56,7 +57,8 @@ public class Window : IDisposable
                 continue;
 
             previouslyElapsed = newElapsed;
-            draw(deltaMs);
+            runningGame?.UpdateInternal(deltaMs);
+            draw();
         }
     }
 
@@ -64,9 +66,6 @@ public class Window : IDisposable
 
     private Sdl2Window window = null!;
     private GraphicsDevice device = null!;
-
-    private VertexBuffer<VertexUvColour> buffer = null!;
-    private IShaderSet shader = null!;
 
     private void createWindow()
     {
@@ -79,21 +78,8 @@ public class Window : IDisposable
             invalidatePixelMatrix();
         };
 
-        pipeline = new DevicePipeline(device);
-
-        buffer = pipeline.CreateVertexBuffer<VertexUvColour>();
-        var color = RgbaFloat.White;
-
-        const float size = 200;
-        
-        buffer.Add(new VertexUvColour(new vec2(0 + 20, 0 + 20), new vec2(0, 0), color));
-        buffer.Add(new VertexUvColour(new vec2(size + 20, 0 + 20), new vec2(1, 0), color));
-        buffer.Add(new VertexUvColour(new vec2(0 + 20, size + 20), new vec2(0, 1), color));
-        buffer.Add(new VertexUvColour(new vec2(size + 20, size + 20), new vec2(1, 1), color));
-
-        var imageSharpTexture = new ImageSharpTexture(@"D:\Projects\Projects\Arbor\Arbor.Resources\Textures\10-wKGO250UVi.png");
-        shader = new ShaderSet(new TexturedVertexShader(), new TexturedFragmentShader(pipeline.CreateDeviceTextureView(imageSharpTexture), pipeline.GetDefaultSampler()));
-
+        Pipeline = new DevicePipeline(device);
+        runningGame?.LoadInternal();
         invalidatePixelMatrix();
     }
 
@@ -103,9 +89,9 @@ public class Window : IDisposable
 
     private mat4 pixelMatrix;
     private readonly Cached pixelMatrixBufferCache = new();
-    private DrawPipeline drawPipeline => pipeline.DrawPipeline;
+    private DrawPipeline drawPipeline => Pipeline.DrawPipeline;
 
-    private void draw(double dt)
+    private void draw()
     {
         drawPipeline.Start();
 
@@ -115,11 +101,9 @@ public class Window : IDisposable
             pixelMatrixBufferCache.Validate();
         }
 
-        drawPipeline.BindShader(shader);
-        drawPipeline.DrawVertexBuffer(buffer);
-        drawPipeline.UnbindShader();
+        // TODO: Replace this with just components
+        runningGame?.DrawInternal(drawPipeline);
         drawPipeline.End();
-
         drawPipeline.Flush();
     }
 
@@ -133,7 +117,7 @@ public class Window : IDisposable
 
     public void Dispose()
     {
-        pipeline.Dispose();
+        Pipeline.Dispose();
 
         GC.SuppressFinalize(this);
     }

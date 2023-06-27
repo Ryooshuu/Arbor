@@ -10,6 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbor.Resources", "Arbor.Resources\Arbor.Resources.csproj", "{33778F9D-4869-48FE-811F-148C234F7AFE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleGame", "SampleGame\SampleGame.csproj", "{72A64656-4AFA-4C3C-94AC-3BCD070E25EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{33778F9D-4869-48FE-811F-148C234F7AFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33778F9D-4869-48FE-811F-148C234F7AFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{33778F9D-4869-48FE-811F-148C234F7AFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72A64656-4AFA-4C3C-94AC-3BCD070E25EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72A64656-4AFA-4C3C-94AC-3BCD070E25EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72A64656-4AFA-4C3C-94AC-3BCD070E25EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72A64656-4AFA-4C3C-94AC-3BCD070E25EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

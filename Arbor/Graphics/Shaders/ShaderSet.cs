@@ -1,8 +1,9 @@
+using Arbor.Graphics.Shaders.Basics;
 using Veldrid;
 
 namespace Arbor.Graphics.Shaders;
 
-public class ShaderSet : IDisposable, IShaderSet
+internal class ShaderSet : IDisposable, IShaderSet
 {
     private readonly ShaderSetDefinition definition;
     
@@ -95,4 +96,19 @@ public enum ShaderSetDefinition
 {
     VertexFragment,
     Compute
+}
+
+public static class ShaderSetHelper
+{
+    public static IShaderSet CreateShaderSet(this IVertexShader vertex, IBindableShader fragment)
+        => new ShaderSet(vertex, fragment);
+    
+    public static IShaderSet CreateShaderSet(this IShader compute)
+        => new ShaderSet(compute);
+
+    public static IShaderSet CreateBasicShaderSet()
+        => new ShaderSet(new BasicVertexShader(), new BasicFragmentShader());
+
+    public static IShaderSet CreateTexturedShaderSet(TextureView textureView, Sampler textureSampler)
+        => new ShaderSet(new TexturedVertexShader(), new TexturedFragmentShader(textureView, textureSampler));
 }

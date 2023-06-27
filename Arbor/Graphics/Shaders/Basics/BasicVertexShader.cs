@@ -4,7 +4,7 @@ using Veldrid;
 
 namespace Arbor.Graphics.Shaders.Basics;
 
-public class BasicVertexShader : VertexShader<VertexPositionColour>
+internal class BasicVertexShader : VertexShader<VertexPositionColour>
 {
     protected override ShaderDescription CreateShaderDescription()
     {

@@ -3,7 +3,7 @@ using Veldrid;
 
 namespace Arbor.Graphics.Shaders.Basics;
 
-public class BasicFragmentShader : FragmentShader
+internal class BasicFragmentShader : FragmentShader
 {
     protected override ShaderDescription CreateShaderDescription()
     {

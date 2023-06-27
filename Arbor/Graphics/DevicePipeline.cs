@@ -11,7 +11,7 @@ namespace Arbor.Graphics;
 public class DevicePipeline : IDisposable
 {
     private readonly GraphicsDevice device;
-    public DrawPipeline DrawPipeline { get; }
+    internal readonly DrawPipeline DrawPipeline;
 
     internal ResourceFactory Factory => device.ResourceFactory;
 

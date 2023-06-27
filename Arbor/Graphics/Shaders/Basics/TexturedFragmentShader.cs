@@ -3,7 +3,7 @@ using Veldrid;
 
 namespace Arbor.Graphics.Shaders.Basics;
 
-public class TexturedFragmentShader : FragmentShader
+internal  class TexturedFragmentShader : FragmentShader
 {
     public TextureView TextureView { get; }
     public Sampler TextureSampler { get; }
