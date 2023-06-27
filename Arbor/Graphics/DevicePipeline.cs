@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using Arbor.Graphics.Shaders;
+using Arbor.Graphics.Shaders.Vertices;
 using Veldrid;
 using Veldrid.ImageSharp;
 using Veldrid.SPIRV;
@@ -34,6 +35,10 @@ public class DevicePipeline : IDisposable
 
     public Sampler GetDefaultSampler()
         => device.Aniso4xSampler;
+    
+    public VertexBuffer<T> CreateVertexBuffer<T>()
+        where T : unmanaged
+        => new(this);
 
     public DeviceBuffer CreateBuffer<T>(T[] values, BufferUsage usage, uint? size = null)
         where T : unmanaged

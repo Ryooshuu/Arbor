@@ -38,13 +38,12 @@ public class DrawPipeline : IDisposable
         var vertexLayouts = set.CreateVertexLayouts();
         var resourceLayouts = set.CreateResourceLayouts().Select(DevicePipeline.Factory.CreateResourceLayout).ToArray();
 
-        var builder = new GraphicsPipelineDescriptionBuilder(defaultPipelineDescription);
-        builder.PushShaderSet(vertexLayouts.ToArray(), new[] { compiledShaders.Vertex, compiledShaders.Fragment! });
-        builder.PushResourceLayouts(resourceLayouts);
-
-        var shaderPipeline = DevicePipeline.CreatePipeline(builder.Build());
+        var shaderPipeline = DevicePipeline.CreatePipeline(new GraphicsPipelineDescriptionBuilder(defaultPipelineDescription)
+           .PushShaderSet(vertexLayouts.ToArray(), new[] { compiledShaders.Vertex, compiledShaders.Fragment! })
+           .PushResourceLayouts(resourceLayouts)
+           .Build());
         pipeline.Value = shaderPipeline;
-        drawStack.Push(new SetPipeline(this, GetPipeline()));
+        drawStack.Push(new SetPipeline(this, pipeline.Value));
 
         uint slot = 1;
         

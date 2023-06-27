@@ -81,7 +81,7 @@ public class Window : IDisposable
 
         pipeline = new DevicePipeline(device);
 
-        buffer = new VertexBuffer<VertexUvColour>(pipeline);
+        buffer = pipeline.CreateVertexBuffer<VertexUvColour>();
         var color = RgbaFloat.White;
 
         const float size = 200;

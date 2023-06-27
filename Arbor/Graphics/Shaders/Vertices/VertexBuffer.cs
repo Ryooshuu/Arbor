@@ -16,7 +16,7 @@ public class VertexBuffer<T> : IVertexBuffer
 
     private readonly DevicePipeline pipeline;
 
-    public VertexBuffer(DevicePipeline pipeline)
+    internal VertexBuffer(DevicePipeline pipeline)
     {
         this.pipeline = pipeline;
     }
