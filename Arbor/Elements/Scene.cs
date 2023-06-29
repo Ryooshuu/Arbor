@@ -1,4 +1,5 @@
 using Arbor.Graphics;
+using Arbor.Timing;
 
 namespace Arbor.Elements;
 
@@ -13,12 +14,12 @@ public class Scene : IDisposable
     {
     }
     
-    internal void UpdateInternal(double dt)
+    internal void UpdateInternal(IClock clock)
     {
-        Update(dt);
+        Update(clock);
     }
     
-    protected virtual void Update(double dt)
+    protected virtual void Update(IClock clock)
     {
     }
     

@@ -101,10 +101,10 @@ public class DrawPipeline : IDisposable
         if (pipeline.IsValid)
             return pipeline.Value;
 
-        return pipeline.Value = createDefaultPipeline();
+        return pipeline.Value = DevicePipeline.CreatePipeline(defaultPipelineDescription);
     }
 
-    private Pipeline createDefaultPipeline()
+    private void createDefaultPipeline()
     {
         var builder = new GraphicsPipelineDescriptionBuilder();
 
@@ -127,10 +127,8 @@ public class DrawPipeline : IDisposable
            .SetResourceLayouts(new[] { GlobalPropertyManager.GlobalResourceLayout })
            .SetShaderSet()
            .SetOutput(DevicePipeline.GetSwapchainFramebuffer().OutputDescription);
-           // .SetOutput(device.SwapchainFramebuffer.OutputDescription);
 
         defaultPipelineDescription = builder.Build();
-        return DevicePipeline.CreatePipeline(defaultPipelineDescription);
     }
 
     #endregion

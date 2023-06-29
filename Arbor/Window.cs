@@ -1,7 +1,7 @@
-﻿using System.Diagnostics;
-using Arbor.Caching;
+﻿using Arbor.Caching;
 using Arbor.Graphics;
 using Arbor.Graphics.Shaders.Uniforms;
+using Arbor.Timing;
 using GlmSharp;
 using Veldrid;
 using Veldrid.Sdl2;
@@ -12,14 +12,10 @@ namespace Arbor;
 public class Window : IDisposable
 {
     private readonly WindowCreateInfo createInfo;
-    private Game? runningGame;
+    private Game runningGame = null!;
 
-    private Stopwatch stopwatch = null!;
-    private double previouslyElapsed;
-
-    private const int target_fps = 60;
-    private const float fps_time = 1000f / target_fps;
-
+    private ThrottledFrameClock clock = null!;
+    
     internal DevicePipeline Pipeline = null!;
 
     #region Constructor
@@ -36,28 +32,27 @@ public class Window : IDisposable
 
     #endregion
 
-    public void Run(Game game)
+    public unsafe void Run(Game game)
     {
         runningGame = game;
         runningGame.Window = this;
 
         createWindow();
 
-        stopwatch = Stopwatch.StartNew();
-        previouslyElapsed = stopwatch.ElapsedMilliseconds;
+        var mode = new SDL_DisplayMode();
+        Sdl2Native.SDL_GetDesktopDisplayMode(0, &mode);
 
+        clock = new ThrottledFrameClock();
+        clock.MaximumUpdateHz = mode.refresh_rate * 2;
+
+        // TODO: Run in separate threads for input, audio, update, and draw.
         while (window.Exists)
         {
             var snapshot = window.PumpEvents();
-
-            var newElapsed = stopwatch.ElapsedMilliseconds;
-            var deltaMs = newElapsed - previouslyElapsed;
-
-            if (deltaMs < fps_time)
-                continue;
-
-            previouslyElapsed = newElapsed;
-            runningGame?.UpdateInternal(deltaMs);
+            
+            clock.ProcessFrame();
+            Console.WriteLine(clock);
+            runningGame.UpdateInternal(clock);
             draw();
         }
     }
@@ -79,7 +74,7 @@ public class Window : IDisposable
         };
 
         Pipeline = new DevicePipeline(device);
-        runningGame?.LoadInternal();
+        runningGame.LoadInternal();
         invalidatePixelMatrix();
     }
 
@@ -102,7 +97,7 @@ public class Window : IDisposable
         }
 
         // TODO: Replace this with just components
-        runningGame?.DrawInternal(drawPipeline);
+        runningGame.DrawInternal(drawPipeline);
         drawPipeline.End();
         drawPipeline.Flush();
     }
