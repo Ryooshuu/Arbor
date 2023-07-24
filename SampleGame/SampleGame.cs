@@ -21,5 +21,6 @@ public class SampleGame : Game
         var transform = entity.GetComponent<Transform>()!;
         transform.Position = new(20);
         transform.Rotation -= 10;
+        transform.Scale = new(0.5f);
     }
 }

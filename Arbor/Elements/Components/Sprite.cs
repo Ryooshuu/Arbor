@@ -89,12 +89,10 @@ public class Sprite : IComponent
 
         buffer = Entity.Pipeline.CreateVertexBuffer<VertexUvColour>();
 
-        const float size = 200; // TODO: get this from the texture instead.
-
         buffer.Add(new VertexUvColour(new vec2(0, 0), new vec2(0, 0), Colour));
-        buffer.Add(new VertexUvColour(new vec2(size, 0), new vec2(1, 0), Colour));
-        buffer.Add(new VertexUvColour(new vec2(0, size), new vec2(0, 1), Colour));
-        buffer.Add(new VertexUvColour(new vec2(size, size), new vec2(1, 1), Colour));
+        buffer.Add(new VertexUvColour(new vec2(texture.Width, 0), new vec2(1, 0), Colour));
+        buffer.Add(new VertexUvColour(new vec2(0, texture.Height), new vec2(0, 1), Colour));
+        buffer.Add(new VertexUvColour(new vec2(texture.Width, texture.Height), new vec2(1, 1), Colour));
 
         shader = ShaderSetHelper.CreateTexturedShaderSet(Entity.Pipeline.CreateDeviceTextureView(texture), Entity.Pipeline.GetDefaultSampler());
         bufferCache.Validate();

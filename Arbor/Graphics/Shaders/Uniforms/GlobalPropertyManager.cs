@@ -45,8 +45,6 @@ public static class GlobalPropertyManager
             sb.AppendLine("    " + p.Property.GetUniformType() + " " + p.Property.GetUniformName() + ";");
         sb.AppendLine("};");
 
-        Console.WriteLine(sb + "\n" + source);
-
         return sb + "\n" + source;
     }
 
