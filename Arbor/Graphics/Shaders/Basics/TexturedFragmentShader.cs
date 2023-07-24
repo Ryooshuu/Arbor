@@ -1,4 +1,3 @@
-using Arbor.Resources;
 using Veldrid;
 
 namespace Arbor.Graphics.Shaders.Basics;
@@ -16,7 +15,7 @@ internal  class TexturedFragmentShader : FragmentShader
 
     protected override ShaderDescription CreateShaderDescription()
     {
-        var bytes = ReadFromResource("texture2d.fsh", ArborResources.ResourcesAssembly);
+        var bytes = ReadFromResource(Game.Resources, "Shaders/texture2d.fsh");
         return new ShaderDescription(ShaderStages.Fragment, bytes, "main");
     }
     

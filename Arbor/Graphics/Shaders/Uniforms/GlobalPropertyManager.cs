@@ -36,7 +36,7 @@ public static class GlobalPropertyManager
         return (T) global_properties.First(p => p.Property == property).Value;
     }
 
-    internal static string CreateShaderSource(string source)
+    internal static string CreateShaderSource()
     {
         var sb = new StringBuilder();
         sb.AppendLine("#version 450");
@@ -45,7 +45,7 @@ public static class GlobalPropertyManager
             sb.AppendLine("    " + p.Property.GetUniformType() + " " + p.Property.GetUniformName() + ";");
         sb.AppendLine("};");
 
-        return sb + "\n" + source;
+        return sb + "\n";
     }
 
     internal static void Init(DevicePipeline pipeline)

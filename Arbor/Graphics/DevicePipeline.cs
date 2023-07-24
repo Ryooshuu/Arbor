@@ -64,11 +64,18 @@ public class DevicePipeline : IDisposable
         device.UpdateBuffer(buffer, offset, values);
     }
 
+    public Texture CreateTexture(ImageSharpTexture texture)
+        => texture.CreateDeviceTexture(device, Factory);
+    
+
     public TextureView CreateDeviceTextureView(ImageSharpTexture texture)
     {
         var text = texture.CreateDeviceTexture(device, Factory);
         return Factory.CreateTextureView(text);
     }
+
+    public TextureView CreateDeviceTextureView(Texture texture)
+        => Factory.CreateTextureView(texture);
 
     public ResourceLayout CreateResourceLayout(ResourceLayoutElementDescription[] descriptions)
         => Factory.CreateResourceLayout(new ResourceLayoutDescription(descriptions));

@@ -6,7 +6,6 @@ using Arbor.Graphics.Shaders.Vertices;
 using Arbor.Timing;
 using GlmSharp;
 using Veldrid;
-using Veldrid.ImageSharp;
 
 namespace Arbor.Elements.Components;
 
@@ -16,9 +15,9 @@ public class Sprite : IComponent
 
     #region Properties
 
-    private ImageSharpTexture texture = null!;
+    private Texture texture = null!;
 
-    public ImageSharpTexture Texture
+    public Texture Texture
     {
         get => texture;
         set

@@ -34,7 +34,7 @@ public class Scene : IDisposable
     
     #region Events
 
-    internal void LoadInternal()
+    internal virtual void LoadInternal()
     {
         Load();
     }

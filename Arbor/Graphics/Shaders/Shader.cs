@@ -1,7 +1,6 @@
-using System.Reflection;
 using System.Text;
 using Arbor.Graphics.Shaders.Uniforms;
-using Arbor.Utils;
+using Arbor.IO.Stores;
 using Veldrid;
 
 namespace Arbor.Graphics.Shaders;
@@ -20,17 +19,19 @@ public abstract class Shader : IShader, IDisposable
         return properties;
     }
     
-    protected byte[] ReadFromResource(string path, Assembly assembly)
+    protected byte[] ReadFromResource(IResourceStore<byte[]> resource, string name)
     {
-        using var stream = ResourceManager.ReadFromResource($"Shaders/{path}", assembly);
-        if (stream == null)
+        var bytes = resource.Get(name);
+        if (bytes == null)
             return Array.Empty<byte>();
 
-        var reader = new StreamReader(stream);
-        var source = reader.ReadToEnd();
-        var bytes = Encoding.UTF8.GetBytes(GlobalPropertyManager.CreateShaderSource(source));
-
-        return bytes;
+        var header = Encoding.UTF8.GetBytes(GlobalPropertyManager.CreateShaderSource());
+        
+        var bytes2 = new byte[header.Length + bytes.Length];
+        Array.Copy(header, bytes2, header.Length);
+        Array.Copy(bytes, 0, bytes2, header.Length, bytes.Length);
+        
+        return bytes2;
     }
 
     protected virtual void Dispose(bool disposing)
