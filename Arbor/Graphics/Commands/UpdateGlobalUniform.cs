@@ -18,6 +18,6 @@ public class UpdateGlobalUniform<T> : DrawCommand
 
     public override void Execute(CommandList cl)
     {
-        GlobalPropertyManager.Set(cl, property, value);
+        GlobalPropertyManager.Set(Pipeline.DevicePipeline, property, value);
     }
 }

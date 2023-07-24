@@ -1,12 +1,10 @@
-using Veldrid;
-
 namespace Arbor.Graphics.Shaders.Uniforms;
 
-public interface IGlobalProperty : IDisposable
+public interface IGlobalProperty
 {
-    public object Value { get; }
-    public DeviceBuffer Buffer { get; }
+    object Value { get; }
+    uint Size { get; }
     GlobalProperties Property { get; }
-
-    void Init(DevicePipeline pipeline);
+    
+    byte[] GetBytes();
 }

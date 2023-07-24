@@ -26,7 +26,7 @@ public class DevicePipeline : IDisposable
         device.SubmitCommands(commandList);
         device.SwapBuffers();
     }
-    
+
     internal Pipeline CreatePipeline(GraphicsPipelineDescription description)
         => Factory.CreateGraphicsPipeline(description);
 
@@ -35,10 +35,13 @@ public class DevicePipeline : IDisposable
 
     public Sampler GetDefaultSampler()
         => device.Aniso4xSampler;
-    
+
     public VertexBuffer<T> CreateVertexBuffer<T>()
         where T : unmanaged
         => new(this);
+
+    public DeviceBuffer CreateBuffer(BufferUsage usage, uint size)
+        => Factory.CreateBuffer(new BufferDescription(size, usage));
 
     public DeviceBuffer CreateBuffer<T>(T[] values, BufferUsage usage, uint? size = null)
         where T : unmanaged
@@ -54,6 +57,12 @@ public class DevicePipeline : IDisposable
 
         return buffer;
     }
+    
+    public void UpdateBuffer<T>(DeviceBuffer buffer, T[] values, uint offset = 0)
+        where T : unmanaged
+    {
+        device.UpdateBuffer(buffer, offset, values);
+    }
 
     public TextureView CreateDeviceTextureView(ImageSharpTexture texture)
     {
@@ -64,7 +73,10 @@ public class DevicePipeline : IDisposable
     public ResourceLayout CreateResourceLayout(ResourceLayoutElementDescription[] descriptions)
         => Factory.CreateResourceLayout(new ResourceLayoutDescription(descriptions));
 
-    public ResourceSet CreateResourceSet(ResourceLayout layout, BindableResource[] resources)
+    public ResourceLayout CreateResourceLayout(ResourceLayoutElementDescription descriptions)
+        => Factory.CreateResourceLayout(new ResourceLayoutDescription(descriptions));
+
+    public ResourceSet CreateResourceSet(ResourceLayout layout, params BindableResource[] resources)
         => Factory.CreateResourceSet(new ResourceSetDescription(layout, resources));
 
     public ResourceSet CreateResourceSet(ResourceLayoutElementDescription[] descriptions, BindableResource[] resources)

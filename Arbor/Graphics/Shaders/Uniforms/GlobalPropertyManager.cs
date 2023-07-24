@@ -9,6 +9,7 @@ public static class GlobalPropertyManager
 {
     private static readonly List<ResourceLayoutElementDescription> element_descriptions;
     private static readonly IGlobalProperty[] global_properties;
+    private static DeviceBuffer buffer = null!;
 
     public static ResourceLayout GlobalResourceLayout { get; private set; } = null!;
     public static ResourceSet GlobalResourceSet { get; private set; } = null!;
@@ -23,10 +24,11 @@ public static class GlobalPropertyManager
         };
     }
 
-    public static void Set<T>(CommandList cl, GlobalProperties property, T value)
+    public static void Set<T>(DevicePipeline pipeline, GlobalProperties property, T value)
         where T : unmanaged
     {
-        ((GlobalProperty<T>) global_properties.First(p => p.Property == property)).Update(cl, value);
+        ((GlobalProperty<T>) global_properties.First(p => p.Property == property)).Update(value);
+        updateBuffer(pipeline);
     }
 
     public static T Get<T>(GlobalProperties property)
@@ -50,24 +52,36 @@ public static class GlobalPropertyManager
 
     internal static void Init(DevicePipeline pipeline)
     {
+        var size = global_properties.Aggregate<IGlobalProperty, uint>(0, (current, property) => current + property.Size);
+        buffer = pipeline.CreateBuffer(BufferUsage.UniformBuffer | BufferUsage.Dynamic, size);
+
+        GlobalResourceLayout = pipeline.CreateResourceLayout(
+            new ResourceLayoutElementDescription(
+                "g_GlobalProperties", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment
+            )
+        );
+        GlobalResourceSet = pipeline.CreateResourceSet(GlobalResourceLayout, buffer);
+    }
+
+    private static void updateBuffer(DevicePipeline pipeline)
+    {
+        var size = global_properties.Aggregate<IGlobalProperty, uint>(0, (current, property) => current + property.Size);
+        var bytes = new byte[size];
+        
+        var offset = 0u;
         foreach (var property in global_properties)
         {
-            element_descriptions.Add(
-                new ResourceLayoutElementDescription(
-                    property.Property.GetUniformName(), ResourceKind.UniformBuffer, ShaderStages.Vertex)
-            );
-
-            property.Init(pipeline);
+            var propertyBytes = property.GetBytes();
+            Array.Copy(propertyBytes, 0, bytes, offset, propertyBytes.Length);
+            offset += property.Size;
         }
-
-        GlobalResourceLayout = pipeline.CreateResourceLayout(element_descriptions.ToArray());
-        GlobalResourceSet = pipeline.CreateResourceSet(GlobalResourceLayout, global_properties.Select(p => p.Buffer).ToArray());
+        
+        pipeline.UpdateBuffer(buffer, bytes);
     }
 
     public static void Dispose()
     {
-        foreach (var property in global_properties)
-            property.Dispose();
+        buffer.Dispose();
     }
 }
 
@@ -75,6 +89,7 @@ public enum GlobalProperties
 {
     [Uniform("g_PixelMatrix", "mat4")]
     PixelMatrix,
+
     [Uniform("g_ModelMatrix", "mat4")]
     ModelMatrix
 }
