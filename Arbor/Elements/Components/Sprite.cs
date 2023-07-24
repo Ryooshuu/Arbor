@@ -16,7 +16,7 @@ public class Sprite : IComponent
 
     #region Properties
 
-    private ImageSharpTexture texture;
+    private ImageSharpTexture texture = null!;
 
     public ImageSharpTexture Texture
     {
@@ -30,9 +30,9 @@ public class Sprite : IComponent
             bufferCache.Invalidate();
         }
     }
-    
+
     private RgbaFloat colour = RgbaFloat.White;
-    
+
     public RgbaFloat Colour
     {
         get => colour;
@@ -47,10 +47,10 @@ public class Sprite : IComponent
     }
 
     #endregion
-    
+
     private readonly Cached bufferCache = new();
-    private VertexBuffer<VertexUvColour> buffer = null!;
-    private IShaderSet shader = null!;
+    private VertexBuffer<VertexUvColour>? buffer;
+    private IShaderSet? shader;
     private Transform? transform;
 
     public Sprite()
@@ -61,8 +61,11 @@ public class Sprite : IComponent
     public void Update(IClock clock)
     {
         if (transform == null && Entity.GetComponent<Transform>() != null)
+        {
             transform = Entity.GetComponent<Transform>();
-        
+            transform!.Size = new vec2(Texture.Width, Texture.Height);
+        }
+
         if (!bufferCache.IsValid)
             validateBuffer();
     }
@@ -73,8 +76,8 @@ public class Sprite : IComponent
             return;
 
         pipeline.PushMatrix(transform.Matrix);
-        pipeline.BindShader(shader);
-        pipeline.DrawVertexBuffer(buffer);
+        pipeline.BindShader(shader!);
+        pipeline.DrawVertexBuffer(buffer!);
         pipeline.UnbindShader();
         pipeline.PopMatrix();
     }
@@ -83,9 +86,11 @@ public class Sprite : IComponent
     {
         if (bufferCache.IsValid)
             return;
-        
+
         buffer?.Dispose();
         shader?.Dispose();
+
+        transform!.Size = new vec2(Texture.Width, Texture.Height);
 
         buffer = Entity.Pipeline.CreateVertexBuffer<VertexUvColour>();
 
@@ -102,7 +107,7 @@ public class Sprite : IComponent
     {
         SpriteSystem.Remove(this);
 
-        buffer.Dispose();
-        shader.Dispose();
+        buffer?.Dispose();
+        shader?.Dispose();
     }
 }

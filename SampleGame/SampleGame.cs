@@ -24,13 +24,14 @@ public class SampleGame : Game
         sprite.Colour = new RgbaFloat(1, 0.5f, 0.5f, 1);
         
         transform = entity.GetComponent<Transform>()!;
-        transform.Position = new vec2(20);
+        transform.Position = new vec2(0, 100);
         transform.Rotation -= 10;
         transform.Scale = new vec2(0.5f);
     }
 
     protected override void Update(IFrameBasedClock clock)
     {
-        transform!.Position = new vec2((float) (transform.Position.x + 0.25f * clock.ElapsedFrameTime), transform.Position.y);
+        transform!.Position = new vec2((float) (transform.Position.x + 0.1f * clock.ElapsedFrameTime), transform.Position.y);
+        transform!.Rotation += (float)(0.1f * clock.ElapsedFrameTime);
     }
 }

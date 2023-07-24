@@ -6,7 +6,7 @@ namespace Arbor.Elements.Components;
 public class Transform : IComponent
 {
     public Entity Entity { get; set; } = null!;
-
+    
     private mat4 matrix = mat4.Identity;
 
     public mat4 Matrix => matrix;
@@ -59,6 +59,21 @@ public class Transform : IComponent
         }
     }
 
+    private vec2 size = new(1);
+
+    internal vec2 Size
+    {
+        get => size;
+        set
+        {
+            if (value == size)
+                return;
+            
+            size = value;
+            validateMatrix();
+        }
+    }
+
     #endregion
 
     public Transform()
@@ -69,6 +84,9 @@ public class Transform : IComponent
     private void validateMatrix()
     {
         var mat = mat4.Identity;
+
+        var originX = size.x / 2; 
+        var originY = size.y / 2; 
         
         if (position != vec2.Zero)
             mat *= mat4.Translate(position.x, position.y, 0);
@@ -79,6 +97,9 @@ public class Transform : IComponent
             var degrees = rotation * MathF.PI / 180f;
             mat *= mat4.RotateZ(degrees);
         }
+        
+        if (originX != 0 && originY != 0)
+            mat *= mat4.Translate(-originX, -originY, 0);
         
         matrix = mat;
     }
