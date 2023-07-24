@@ -43,13 +43,13 @@ public class Scene : IDisposable
     {
     }
     
-    internal void UpdateInternal(IClock clock)
+    internal void UpdateInternal(IFrameBasedClock clock)
     {
         SpriteSystem.Update(clock);
         Update(clock);
     }
     
-    protected virtual void Update(IClock clock)
+    protected virtual void Update(IFrameBasedClock clock)
     {
     }
     
