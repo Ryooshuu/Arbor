@@ -112,6 +112,7 @@ public class Window : IDisposable
 
     public void Dispose()
     {
+        runningGame.Dispose();
         Pipeline.Dispose();
 
         GC.SuppressFinalize(this);

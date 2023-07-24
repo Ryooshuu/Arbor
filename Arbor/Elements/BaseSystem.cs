@@ -8,14 +8,18 @@ public class BaseSystem<T>
 {
     protected static IReadOnlyList<T> Components => components.ToList().AsReadOnly();
     private static readonly List<T> components = new();
+    private static bool isDestroying;
 
     public static void Register(T component)
     {
         components.Add(component);
     }
-    
+
     public static void Remove(T component)
     {
+        if (isDestroying)
+            return;
+
         components.Remove(component);
     }
 
@@ -24,16 +28,18 @@ public class BaseSystem<T>
         foreach (var component in components)
             component.Update(clock);
     }
-    
+
     public static void Draw(DrawPipeline pipeline)
     {
         foreach (var component in components)
             component.Draw(pipeline);
     }
-    
+
     public static void Destroy()
     {
+        isDestroying = true;
         foreach (var component in components)
             component.Destroy();
+        isDestroying = false;
     }
 }

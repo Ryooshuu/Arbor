@@ -4,6 +4,7 @@ using Arbor.Graphics.Shaders;
 using Arbor.Graphics.Shaders.Uniforms;
 using Arbor.Graphics.Shaders.Vertices;
 using Arbor.Utils;
+using GlmSharp;
 using Veldrid;
 
 namespace Arbor.Graphics;
@@ -11,6 +12,7 @@ namespace Arbor.Graphics;
 public class DrawPipeline : IDisposable
 {
     private readonly DrawStack drawStack = new();
+    private readonly Stack<mat4> matrixStack = new();
 
     private readonly CommandList commandList;
     private GraphicsPipelineDescription defaultPipelineDescription;
@@ -79,6 +81,22 @@ public class DrawPipeline : IDisposable
     public void DrawVertexBuffer(IVertexBuffer buffer)
     {
         drawStack.Push(new DrawVertexBuffer(this, buffer));
+    }
+    
+    public void PushMatrix(mat4 matrix)
+    {
+        matrixStack.Push(matrix);
+        var oldMatrix = matrixStack.Count > 1 ? matrixStack.Peek() : mat4.Identity;
+        
+        drawStack.Push(new UpdateGlobalUniform<mat4>(this, GlobalProperties.ModelMatrix, matrix * oldMatrix));
+    }
+    
+    public void PopMatrix()
+    {
+        matrixStack.TryPop(out _);
+        var oldMatrix = matrixStack.Count > 1 ? matrixStack.Peek() : mat4.Identity;
+        
+        drawStack.Push(new UpdateGlobalUniform<mat4>(this, GlobalProperties.ModelMatrix, oldMatrix));
     }
 
     public void End()

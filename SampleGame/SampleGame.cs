@@ -1,29 +1,25 @@
 using Arbor;
 using Arbor.Elements;
 using Arbor.Elements.Components;
-using Arbor.Timing;
 
 namespace SampleGame;
 
 public class SampleGame : Game
 {
-    private Entity? spriteEntity;
+    private Entity? entity;
     
     protected override void Load()
     {
-        spriteEntity = CreateEntity();
-        spriteEntity.AddComponent<Sprite>();
-    }
-    
-    protected override void Update(IClock clock)
-    {
-        // if (!(clock.CurrentTime > 5000))
-        //     return;
-        //
-        // if (spriteEntity == null)
-        //     return;
-        //
-        // spriteEntity.Dispose();
-        // spriteEntity = null;
+        entity = CreateEntity();
+        entity.AddComponent<Sprite>();
+        entity.AddComponent<Transform>();
+        
+        var sprite = entity.GetComponent<Sprite>()!;
+        sprite.Texture = new(@"D:\Projects\Projects\Arbor\SampleGame\Textures\10-wKGO250UVi.png");
+        sprite.Colour = new(1, 0.5f, 0.5f, 1);
+        
+        var transform = entity.GetComponent<Transform>()!;
+        transform.Position = new(20);
+        transform.Rotation -= 10;
     }
 }

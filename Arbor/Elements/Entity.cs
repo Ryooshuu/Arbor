@@ -4,7 +4,7 @@ namespace Arbor.Elements;
 
 public class Entity : IDisposable
 {
-    public Action? OnDispose { get; set; }
+    public Action<Entity>? OnDispose { get; set; }
     
     internal uint Id { get; set; }
     internal DevicePipeline Pipeline { get; private set; }
@@ -27,10 +27,10 @@ public class Entity : IDisposable
         return component;
     }
     
-    public T GetComponent<T>()
-        where T : IComponent
+    public T? GetComponent<T>()
+        where T : class, IComponent
     {
-        return (T)componentMap[typeof(T)];
+        return componentMap.TryGetValue(typeof(T), out var component) ? (T)component : null;
     }
 
     public void Dispose()
@@ -42,6 +42,6 @@ public class Entity : IDisposable
             componentMap.Remove(component.GetType());
         }
         
-        OnDispose?.Invoke();
+        OnDispose?.Invoke(this);
     }
 }

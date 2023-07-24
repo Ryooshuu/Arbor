@@ -20,9 +20,14 @@ public class Scene : IDisposable
     {
         var entity = new Entity(Pipeline);
         aliveEntities.Add(entity);
-        entity.OnDispose = () => aliveEntities.Remove(entity);
+        entity.OnDispose += removeEntity;
         
         return entity;
+    }
+
+    private void removeEntity(Entity entity)
+    {
+        aliveEntities.Remove(entity);
     }
 
     #endregion
@@ -68,7 +73,10 @@ public class Scene : IDisposable
     {
         SpriteSystem.Destroy();
         foreach (var entity in aliveEntities)
+        {
+            entity.OnDispose -= removeEntity;
             entity.Dispose();
+        }
         
         Dispose(true);
         GC.SuppressFinalize(this);

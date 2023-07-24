@@ -24,11 +24,11 @@ public static class GlobalPropertyManager
         };
     }
 
-    public static void Set<T>(DevicePipeline pipeline, GlobalProperties property, T value)
+    public static void Set<T>(CommandList cl, GlobalProperties property, T value)
         where T : unmanaged
     {
         ((GlobalProperty<T>) global_properties.First(p => p.Property == property)).Update(value);
-        updateBuffer(pipeline);
+        updateBuffer(cl);
     }
 
     public static T Get<T>(GlobalProperties property)
@@ -63,7 +63,7 @@ public static class GlobalPropertyManager
         GlobalResourceSet = pipeline.CreateResourceSet(GlobalResourceLayout, buffer);
     }
 
-    private static void updateBuffer(DevicePipeline pipeline)
+    private static void updateBuffer(CommandList cl)
     {
         var size = global_properties.Aggregate<IGlobalProperty, uint>(0, (current, property) => current + property.Size);
         var bytes = new byte[size];
@@ -76,7 +76,7 @@ public static class GlobalPropertyManager
             offset += property.Size;
         }
         
-        pipeline.UpdateBuffer(buffer, bytes);
+        cl.UpdateBuffer(buffer, 0, bytes);
     }
 
     public static void Dispose()
