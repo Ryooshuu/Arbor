@@ -2,7 +2,7 @@ using Veldrid;
 
 namespace Arbor.Graphics.Shaders;
 
-public interface IShaderSet
+public interface IShaderSet : IDisposable
 {
     IShader[] Shaders { get; }
     

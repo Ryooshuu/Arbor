@@ -51,7 +51,6 @@ public class Window : IDisposable
             var snapshot = window.PumpEvents();
             
             clock.ProcessFrame();
-            Console.WriteLine(clock);
             runningGame.UpdateInternal(clock);
             draw();
         }
@@ -92,6 +91,7 @@ public class Window : IDisposable
 
         if (!pixelMatrixBufferCache.IsValid)
         {
+            drawPipeline.SetGlobalUniform(GlobalProperties.ModelMatrix, mat4.Identity);
             drawPipeline.SetGlobalUniform(GlobalProperties.PixelMatrix, pixelMatrix);
             pixelMatrixBufferCache.Validate();
         }

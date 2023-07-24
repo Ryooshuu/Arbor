@@ -18,7 +18,8 @@ public static class GlobalPropertyManager
         element_descriptions = new List<ResourceLayoutElementDescription>();
         global_properties = new IGlobalProperty[]
         {
-            new GlobalProperty<mat4>(GlobalProperties.PixelMatrix)
+            new GlobalProperty<mat4>(GlobalProperties.PixelMatrix),
+            new GlobalProperty<mat4>(GlobalProperties.ModelMatrix),
         };
     }
 
@@ -41,6 +42,8 @@ public static class GlobalPropertyManager
         foreach (var p in global_properties)
             sb.AppendLine("    " + p.Property.GetUniformType() + " " + p.Property.GetUniformName() + ";");
         sb.AppendLine("};");
+
+        Console.WriteLine(sb + "\n" + source);
 
         return sb + "\n" + source;
     }
@@ -71,5 +74,7 @@ public static class GlobalPropertyManager
 public enum GlobalProperties
 {
     [Uniform("g_PixelMatrix", "mat4")]
-    PixelMatrix
+    PixelMatrix,
+    [Uniform("g_ModelMatrix", "mat4")]
+    ModelMatrix
 }

@@ -3,7 +3,7 @@ using Veldrid;
 
 namespace Arbor.Graphics.Shaders;
 
-internal class ShaderSet : IDisposable, IShaderSet
+internal class ShaderSet : IShaderSet
 {
     private readonly ShaderSetDefinition definition;
     
