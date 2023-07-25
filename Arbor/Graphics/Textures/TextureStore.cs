@@ -1,20 +1,18 @@
 using System.Diagnostics;
 using Arbor.IO.Stores;
 using Arbor.Utils;
-using Veldrid;
-using Veldrid.ImageSharp;
 
 namespace Arbor.Graphics.Textures;
 
 public class TextureStore : IResourceStore<Texture>
 {
     private readonly Dictionary<string, Texture?> textureCache = new();
-    private readonly ResourceStore<ImageSharpTexture> sharpStore = new();
+    private readonly ResourceStore<TextureUpload> uploadStore = new();
     private readonly List<IResourceStore<Texture>> nestedStores = new();
 
     private readonly DevicePipeline pipeline;
 
-    public TextureStore(DevicePipeline pipeline, IResourceStore<ImageSharpTexture>? store = null)
+    public TextureStore(DevicePipeline pipeline, IResourceStore<TextureUpload>? store = null)
     {
         if (store != null)
             AddTextureSource(store);
@@ -22,11 +20,11 @@ public class TextureStore : IResourceStore<Texture>
         this.pipeline = pipeline;
     }
 
-    public virtual void AddTextureSource(IResourceStore<ImageSharpTexture> store)
-        => sharpStore.AddStore(store);
+    public virtual void AddTextureSource(IResourceStore<TextureUpload> store)
+        => uploadStore.AddStore(store);
 
-    public virtual void RemoveTextureSource(IResourceStore<ImageSharpTexture> store)
-        => sharpStore.RemoveStore(store);
+    public virtual void RemoveTextureSource(IResourceStore<TextureUpload> store)
+        => uploadStore.RemoveStore(store);
 
     public virtual void AddStore(IResourceStore<Texture> store)
     {
@@ -64,7 +62,7 @@ public class TextureStore : IResourceStore<Texture>
 
     public Stream? GetStream(string name)
     {
-        var stream = sharpStore.GetStream(name);
+        var stream = uploadStore.GetStream(name);
 
         if (stream == null)
         {
@@ -81,13 +79,13 @@ public class TextureStore : IResourceStore<Texture>
         return stream;
     }
 
-    private Texture loadRaw(ImageSharpTexture upload)
+    private Texture? loadRaw(TextureUpload upload)
         => pipeline.CreateTexture(upload);
 
     public IEnumerable<string> GetAvailableResources()
     {
         lock (nestedStores)
-            return sharpStore.GetAvailableResources().Concat(nestedStores.SelectMany(s => s.GetAvailableResources()).ExcludeSystemFileNames()).ToArray();
+            return uploadStore.GetAvailableResources().Concat(nestedStores.SelectMany(s => s.GetAvailableResources()).ExcludeSystemFileNames()).ToArray();
     }
 
     private readonly Dictionary<string, Task?> retrievalCompletionSources = new();
@@ -123,7 +121,9 @@ public class TextureStore : IResourceStore<Texture>
 
         try
         {
-            tex = loadRaw(sharpStore.Get(name)!);
+            tex = loadRaw(uploadStore.Get(name)!);
+            if (tex != null)
+                tex.LookupKey = name;
 
             return CacheAndReturnTexture(name, tex);
         }
@@ -153,6 +153,20 @@ public class TextureStore : IResourceStore<Texture>
             return textureCache[lookupKey] = texture;
     }
 
+    protected void Purge(Texture texture)
+    {
+        lock (textureCache)
+        {
+            if (textureCache.TryGetValue(texture.LookupKey, out var tex))
+            {
+                if (tex != null)
+                    new DisposableTexture(tex).Dispose();
+            }
+
+            textureCache.Remove(texture.LookupKey);
+        }
+    }
+
     #region IDisposable Support
 
     private bool isDisposed;
@@ -169,7 +183,7 @@ public class TextureStore : IResourceStore<Texture>
         {
             isDisposed = true;
 
-            sharpStore.Dispose();
+            uploadStore.Dispose();
             lock (nestedStores)
                 nestedStores.ForEach(s => s.Dispose());
         }

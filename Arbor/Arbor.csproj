@@ -10,8 +10,9 @@
 
     <ItemGroup>
         <PackageReference Include="GlmSharp" Version="0.9.8" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="3.0.1" />
+        <PackageReference Include="StbiSharp" Version="1.2.1" />
         <PackageReference Include="Veldrid" Version="4.9.0" />
-        <PackageReference Include="Veldrid.ImageSharp" Version="4.9.0" />
         <PackageReference Include="Veldrid.SPIRV" Version="1.0.15" />
         <PackageReference Include="Veldrid.StartupUtilities" Version="4.9.0" />
     </ItemGroup>

@@ -1,9 +1,8 @@
 using Arbor.IO.Stores;
-using Veldrid.ImageSharp;
 
 namespace Arbor.Graphics.Textures;
 
-public class TextureLoaderStore : IResourceStore<ImageSharpTexture>
+public class TextureLoaderStore : IResourceStore<TextureUpload>
 {
     private readonly ResourceStore<byte[]> store;
 
@@ -14,17 +13,17 @@ public class TextureLoaderStore : IResourceStore<ImageSharpTexture>
         this.store.AddExtension(@"jpg");
     }
 
-    public Task<ImageSharpTexture?> GetAsync(string name, CancellationToken cancellationToken = default)
+    public Task<TextureUpload?> GetAsync(string name, CancellationToken cancellationToken = default)
         => Task.Run(() => Get(name), cancellationToken);
 
-    public ImageSharpTexture? Get(string name)
+    public TextureUpload? Get(string name)
     {
         try
         {
             using (var stream = store.GetStream(name))
             {
                 if (stream != null)
-                    return new ImageSharpTexture(stream);
+                    return new TextureUpload(ImageFromStream<Rgba32>(stream));
             }
         }
         catch
@@ -37,6 +36,10 @@ public class TextureLoaderStore : IResourceStore<ImageSharpTexture>
 
     public Stream? GetStream(string name)
         => store.GetStream(name);
+
+    protected virtual Image<TPixel> ImageFromStream<TPixel>(Stream stream)
+        where TPixel : unmanaged, IPixel<TPixel>
+        => TextureUpload.LoadFromStream<TPixel>(stream);
 
     public IEnumerable<string> GetAvailableResources()
         => store.GetAvailableResources();
@@ -62,4 +65,5 @@ public class TextureLoaderStore : IResourceStore<ImageSharpTexture>
     }
 
     #endregion
+
 }
