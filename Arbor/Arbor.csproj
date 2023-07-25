@@ -21,4 +21,10 @@
         <ProjectReference Include="..\Arbor.Resources\Arbor.Resources.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Graphics\Textures\TextureAtlas_BackingAtlasTexture.cs">
+        <DependentUpon>TextureAtlas.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

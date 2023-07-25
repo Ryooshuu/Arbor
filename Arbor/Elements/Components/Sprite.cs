@@ -94,10 +94,13 @@ public class Sprite : IComponent
 
         buffer = Entity.Pipeline.CreateVertexBuffer<VertexUvColour>();
 
-        buffer.Add(new VertexUvColour(new vec2(0, 0), new vec2(0, 0), Colour));
-        buffer.Add(new VertexUvColour(new vec2(texture.Width, 0), new vec2(1, 0), Colour));
-        buffer.Add(new VertexUvColour(new vec2(0, texture.Height), new vec2(0, 1), Colour));
-        buffer.Add(new VertexUvColour(new vec2(texture.Width, texture.Height), new vec2(1, 1), Colour));
+        var texRect = texture.GetTextureRect();
+
+        // TODO: Wow...
+        buffer.Add(new VertexUvColour(new vec2(0, 0), new vec2(texRect.Left / texture.NativeTexture.Width, texRect.Top / texture.NativeTexture.Height), Colour));
+        buffer.Add(new VertexUvColour(new vec2(texture.Width, 0), new vec2(texRect.Right / texture.NativeTexture.Width, texRect.Top / texture.NativeTexture.Height), Colour));
+        buffer.Add(new VertexUvColour(new vec2(0, texture.Height), new vec2(texRect.Left / texture.NativeTexture.Width, texRect.Bottom / texture.NativeTexture.Height), Colour));
+        buffer.Add(new VertexUvColour(new vec2(texture.Width, texture.Height), new vec2(texRect.Right / texture.NativeTexture.Width, texRect.Bottom / texture.NativeTexture.Height), Colour));
 
         shader = ShaderSetHelper.CreateTexturedShaderSet(texture.TextureView, Entity.Pipeline.GetDefaultSampler());
         bufferCache.Validate();

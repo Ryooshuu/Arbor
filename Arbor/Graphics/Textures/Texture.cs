@@ -68,6 +68,9 @@ public class Texture : IDisposable
         }
     }
 
+    public virtual RectangleF GetTextureRect(RectangleF? area = null)
+        => area ?? new RectangleF(0, 0, Width, Height);
+
     #region TextureVisualizer Support
 
     internal bool IsAtlasTexture { get; set; }
@@ -78,15 +81,14 @@ public class Texture : IDisposable
 
     public void Dispose()
     {
-        NativeTexture?.Dispose();
-        textureView?.Dispose();
-
         Dispose(true);
         GC.SuppressFinalize(this);
     }
 
     protected virtual void Dispose(bool isDisposing)
     {
+        NativeTexture?.Dispose();
+        textureView?.Dispose();
     }
 
     #endregion

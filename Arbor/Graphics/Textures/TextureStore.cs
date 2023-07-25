@@ -12,12 +12,21 @@ public class TextureStore : IResourceStore<Texture>
 
     private readonly DevicePipeline pipeline;
 
-    public TextureStore(DevicePipeline pipeline, IResourceStore<TextureUpload>? store = null)
+    protected readonly TextureAtlas? Atlas;
+
+    private const int max_atlas_size = 1024;
+
+    public TextureStore(DevicePipeline pipeline, IResourceStore<TextureUpload>? store = null, bool useAtlas = true)
     {
         if (store != null)
             AddTextureSource(store);
 
         this.pipeline = pipeline;
+
+        if (useAtlas)
+        {
+            Atlas = new TextureAtlas(pipeline, max_atlas_size, max_atlas_size);
+        }
     }
 
     public virtual void AddTextureSource(IResourceStore<TextureUpload> store)
@@ -80,7 +89,22 @@ public class TextureStore : IResourceStore<Texture>
     }
 
     private Texture? loadRaw(TextureUpload upload)
-        => pipeline.CreateTexture(upload);
+    {
+        Texture? tex = null;
+
+        if (Atlas != null)
+        {
+            if ((tex = Atlas.Add((int) upload.Width, (int) upload.Height)) == null)
+            {
+                Console.WriteLine($"Texture requested ({upload.Width}x{upload.Height}) which exceeds {nameof(TextureStore)}'s atlas size ({max_atlas_size}x{max_atlas_size}) - bypassing atlasing.");
+            }
+        }
+
+        tex ??= pipeline.CreateTexture(upload);
+        tex.SetData(upload);
+
+        return tex;
+    }
 
     public IEnumerable<string> GetAvailableResources()
     {

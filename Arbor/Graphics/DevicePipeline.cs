@@ -71,17 +71,24 @@ public class DevicePipeline : IDisposable
     public Sampler GetDefaultSampler()
         => device.Aniso4xSampler;
 
-    public Texture? CreateTexture(TextureUpload texture)
+    public Texture CreateTexture(TextureUpload texture)
     {
-        if (texture.Data.IsEmpty)
-            return null;
-
         var description = TextureDescription.Texture2D(texture.Width, texture.Height, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm,
-                TextureUsage.Sampled | TextureUsage.RenderTarget | TextureUsage.GenerateMipmaps);
+            TextureUsage.Sampled | TextureUsage.RenderTarget);
         var tex = Factory.CreateTexture(ref description);
-        
-        device.UpdateTexture(tex, texture.Data, 0, 0, 0, texture.Width, texture.Height, 1, 0, 0);
+
         return new Texture(tex, this);
+    }
+
+    public Texture? CreateTexture(int width, int height, RgbaFloat initialisationColour)
+    {
+        var image = new Image<Rgba32>(width, height, new Rgba32(initialisationColour.ToVector4()));
+        var upload = new TextureUpload(image);
+
+        var texture = CreateTexture(upload);
+        UpdateTexture(texture.NativeTexture, upload);
+
+        return texture;
     }
 
     public TextureView CreateDeviceTextureView(Veldrid.Texture texture)
