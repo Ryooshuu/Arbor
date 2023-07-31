@@ -26,4 +26,7 @@ public static class ExtensionMethods
         var type = value as Type ?? value.GetType();
         return type.GetField(value.ToString()!)?.GetCustomAttribute<UniformAttribute>()?.Type!;
     }
+    
+    public static string TrimDirectorySeparator(this string path)
+        => path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
 }
