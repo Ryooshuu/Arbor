@@ -10,7 +10,7 @@ public class Entity : IDisposable
     internal DevicePipeline Pipeline { get; private set; }
     internal IReadOnlyList<IComponent> Components => componentMap.Values.ToList().AsReadOnly();
 
-    private readonly Dictionary<Type, IComponent> componentMap = new();
+    private readonly Dictionary<Type, IComponent> componentMap = new Dictionary<Type, IComponent>();
 
     internal Entity(DevicePipeline pipeline)
     {

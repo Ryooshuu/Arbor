@@ -28,7 +28,7 @@ public class Texture : IDisposable
     public virtual uint Width { get; set; }
     public virtual uint Height { get; set; }
 
-    public vec2 Size => new(Width, Height);
+    public vec2 Size => new vec2(Width, Height);
 
     internal uint? MipLevel => NativeTexture.MipLevels;
 

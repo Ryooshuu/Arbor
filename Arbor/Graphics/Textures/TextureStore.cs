@@ -6,9 +6,9 @@ namespace Arbor.Graphics.Textures;
 
 public class TextureStore : IResourceStore<Texture>
 {
-    private readonly Dictionary<string, Texture?> textureCache = new();
-    private readonly ResourceStore<TextureUpload> uploadStore = new();
-    private readonly List<IResourceStore<Texture>> nestedStores = new();
+    private readonly Dictionary<string, Texture?> textureCache = new Dictionary<string, Texture?>();
+    private readonly ResourceStore<TextureUpload> uploadStore = new ResourceStore<TextureUpload>();
+    private readonly List<IResourceStore<Texture>> nestedStores = new List<IResourceStore<Texture>>();
 
     private readonly DevicePipeline pipeline;
 
@@ -112,7 +112,7 @@ public class TextureStore : IResourceStore<Texture>
             return uploadStore.GetAvailableResources().Concat(nestedStores.SelectMany(s => s.GetAvailableResources()).ExcludeSystemFileNames()).ToArray();
     }
 
-    private readonly Dictionary<string, Task?> retrievalCompletionSources = new();
+    private readonly Dictionary<string, Task?> retrievalCompletionSources = new Dictionary<string, Task?>();
     
     private Texture? get(string name)
     {

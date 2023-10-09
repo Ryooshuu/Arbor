@@ -48,7 +48,7 @@ public class Sprite : IComponent
 
     #endregion
 
-    private readonly Cached bufferCache = new();
+    private readonly Cached bufferCache = new Cached();
     private VertexBuffer<VertexUvColour>? buffer;
     private IShaderSet? shader;
     private Transform? transform;

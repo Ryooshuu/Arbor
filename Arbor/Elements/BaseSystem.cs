@@ -7,7 +7,7 @@ public class BaseSystem<T>
     where T : IComponent
 {
     protected static IReadOnlyList<T> Components => components.ToList().AsReadOnly();
-    private static readonly List<T> components = new();
+    private static readonly List<T> components = new List<T>();
     private static bool isDestroying;
 
     public static void Register(T component)

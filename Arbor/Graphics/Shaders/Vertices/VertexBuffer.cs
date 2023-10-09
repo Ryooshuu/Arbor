@@ -5,7 +5,7 @@ namespace Arbor.Graphics.Shaders.Vertices;
 public class VertexBuffer<T> : IVertexBuffer
     where T : unmanaged
 {
-    private readonly List<T> vertices = new();
+    private readonly List<T> vertices = new List<T>();
     private ushort[] indices = null!;
 
     public DeviceBuffer? VerticesBuffer { get; private set; }

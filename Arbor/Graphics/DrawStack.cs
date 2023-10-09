@@ -2,7 +2,7 @@
 
 public class DrawStack
 {
-    private readonly LinkedList<DrawCommand> stack = new();
+    private readonly LinkedList<DrawCommand> stack = new LinkedList<DrawCommand>();
 
     public void Push(DrawCommand command)
     {

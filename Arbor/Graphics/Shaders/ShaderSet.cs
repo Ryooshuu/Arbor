@@ -61,10 +61,12 @@ internal class ShaderSet : IShaderSet
     }
 
     public IEnumerable<VertexLayoutDescription> CreateVertexLayouts()
-        => new VertexLayoutDescription[] { new(Vertex?.CreateVertexDescriptions()) };
+        => new VertexLayoutDescription[] {
+            new VertexLayoutDescription(Vertex?.CreateVertexDescriptions()) };
 
     public IEnumerable<ResourceLayoutDescription> CreateResourceLayouts()
-        => new ResourceLayoutDescription[] { new(Fragment?.CreateResourceDescriptions()) };
+        => new ResourceLayoutDescription[] {
+            new ResourceLayoutDescription(Fragment?.CreateResourceDescriptions()) };
 
     public void Dispose()
     {

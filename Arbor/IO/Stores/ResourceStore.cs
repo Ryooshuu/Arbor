@@ -3,9 +3,9 @@ namespace Arbor.IO.Stores;
 public class ResourceStore<T> : IResourceStore<T>
     where T : class
 {
-    private readonly Dictionary<string, Action?> actionList = new();
-    private readonly List<IResourceStore<T>> stores = new();
-    private readonly List<string> searchExtensions = new();
+    private readonly Dictionary<string, Action?> actionList = new Dictionary<string, Action?>();
+    private readonly List<IResourceStore<T>> stores = new List<IResourceStore<T>>();
+    private readonly List<string> searchExtensions = new List<string>();
 
     public ResourceStore()
     {

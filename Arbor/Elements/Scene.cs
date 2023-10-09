@@ -15,7 +15,7 @@ public class Scene : IDisposable
     
     public IReadOnlyList<Entity> Entities => aliveEntities;
 
-    private readonly List<Entity> aliveEntities = new();
+    private readonly List<Entity> aliveEntities = new List<Entity>();
 
     public Entity CreateEntity()
     {

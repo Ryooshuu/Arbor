@@ -25,8 +25,8 @@ internal  class TexturedFragmentShader : FragmentShader
     public override ResourceLayoutElementDescription[] CreateResourceDescriptions()
         => new ResourceLayoutElementDescription[]
         {
-            new("in_Texture", ResourceKind.TextureReadOnly, Stage),
-            new("in_TextureSampler", ResourceKind.Sampler, Stage),
+            new ResourceLayoutElementDescription("in_Texture", ResourceKind.TextureReadOnly, Stage),
+            new ResourceLayoutElementDescription("in_TextureSampler", ResourceKind.Sampler, Stage),
         };
 
     

@@ -11,12 +11,12 @@ namespace Arbor.Graphics;
 
 public class DrawPipeline : IDisposable
 {
-    private readonly DrawStack drawStack = new();
-    private readonly Stack<mat4> matrixStack = new();
+    private readonly DrawStack drawStack = new DrawStack();
+    private readonly Stack<mat4> matrixStack = new Stack<mat4>();
 
     private readonly CommandList commandList;
     private GraphicsPipelineDescription defaultPipelineDescription;
-    private readonly Cached<Pipeline> pipeline = new();
+    private readonly Cached<Pipeline> pipeline = new Cached<Pipeline>();
     
     public DevicePipeline DevicePipeline { get; }
     

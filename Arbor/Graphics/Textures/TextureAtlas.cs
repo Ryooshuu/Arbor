@@ -9,7 +9,7 @@ public partial class TextureAtlas
     internal const uint PADDING = (1 << 3) * 3;
     internal const uint WHITE_PIXEL_SIZE = 1;
 
-    private readonly List<Rectangle> subTextureBounds = new();
+    private readonly List<Rectangle> subTextureBounds = new List<Rectangle>();
     private Texture? atlasTexture;
 
     private readonly DevicePipeline pipeline;
@@ -33,7 +33,7 @@ public partial class TextureAtlas
         }
     }
     
-    private readonly object textureRetrievalLock = new();
+    private readonly object textureRetrievalLock = new object();
 
     public TextureAtlas(DevicePipeline pipeline, int width, int height)
     {

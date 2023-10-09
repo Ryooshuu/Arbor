@@ -82,7 +82,7 @@ public class Window : IDisposable
     #region Drawing
 
     private mat4 pixelMatrix;
-    private readonly Cached pixelMatrixBufferCache = new();
+    private readonly Cached pixelMatrixBufferCache = new Cached();
     private DrawPipeline drawPipeline => Pipeline.DrawPipeline;
 
     private void draw()
