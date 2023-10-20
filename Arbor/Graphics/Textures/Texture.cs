@@ -25,6 +25,11 @@ public class Texture : IDisposable
 
     internal string LookupKey = string.Empty;
 
+    public float ScaleAdjust = 1;
+
+    public float DisplayWidth => Width / ScaleAdjust;
+    public float DisplayHeight => Height / ScaleAdjust;
+
     public virtual uint Width { get; set; }
     public virtual uint Height { get; set; }
 
@@ -70,6 +75,12 @@ public class Texture : IDisposable
 
     public virtual RectangleF GetTextureRect(RectangleF? area = null)
         => area ?? new RectangleF(0, 0, Width, Height);
+    
+    public virtual RectangleF GetUvRect(RectangleF? area = null)
+    {
+        var texRect = GetTextureRect(area);
+        return new RectangleF(texRect.Left / NativeTexture.Width, texRect.Top / NativeTexture.Height, texRect.Width / NativeTexture.Width, texRect.Height / NativeTexture.Height);
+    }
 
     #region TextureVisualizer Support
 
@@ -92,5 +103,4 @@ public class Texture : IDisposable
     }
 
     #endregion
-
 }

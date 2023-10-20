@@ -17,6 +17,8 @@ public class Window : IDisposable
     private ThrottledFrameClock clock = null!;
     
     internal DevicePipeline Pipeline = null!;
+    
+    public string Title => createInfo.WindowTitle;
 
     #region Constructor
 

@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="Textures/**/*" />
+        <EmbeddedResource Include="Resources/Textures/**/*" />
     </ItemGroup>
 
     <ItemGroup>

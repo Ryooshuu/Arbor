@@ -15,18 +15,22 @@ public class SampleGame : Game
     
     protected override void Load()
     {
-        Resources.AddStore(new DllResourceStore(typeof(SampleGame).Assembly));
+        Resources.AddStore(new NamespacedResourceStore<byte[]>(new DllResourceStore(typeof(SampleGame).Assembly), @"Resources"));
         
         entity = CreateEntity();
         var sprite = entity.AddComponent<Sprite>();
         transform = entity.AddComponent<Transform>();
         
-        sprite.Texture = Textures.Get("10-wKGO250UVi.png")!;
+        // sprite.Texture = Textures.Get("10-wKGO250UVi.png")!;
+
+        var character = Fonts.Get("Roboto-Regular", 'A')!;
+        sprite.Texture = character.Texture;
+        
         sprite.Colour = new RgbaFloat(1, 0.5f, 0.5f, 1);
         
         transform.Position = new vec2(0, 100);
-        transform.Rotation -= 10;
-        transform.Scale = new vec2(0.5f);
+        // transform.Rotation -= 10;
+        transform.Scale = new vec2(50f);
     }
 
     protected override void Update(IFrameBasedClock clock)

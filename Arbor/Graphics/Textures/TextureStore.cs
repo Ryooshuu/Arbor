@@ -12,16 +12,20 @@ public class TextureStore : IResourceStore<Texture>
 
     private readonly DevicePipeline pipeline;
 
-    protected readonly TextureAtlas? Atlas;
+    protected TextureAtlas? Atlas;
 
     private const int max_atlas_size = 1024;
 
-    public TextureStore(DevicePipeline pipeline, IResourceStore<TextureUpload>? store = null, bool useAtlas = true)
+    public readonly float ScaleAdjust;
+
+    public TextureStore(DevicePipeline pipeline, IResourceStore<TextureUpload>? store = null, bool useAtlas = true, float scaleAdjust = 2)
     {
         if (store != null)
             AddTextureSource(store);
 
         this.pipeline = pipeline;
+
+        ScaleAdjust = scaleAdjust;
 
         if (useAtlas)
         {
@@ -101,6 +105,7 @@ public class TextureStore : IResourceStore<Texture>
         }
 
         tex ??= pipeline.CreateTexture(upload);
+        tex.ScaleAdjust = ScaleAdjust;
         tex.SetData(upload);
 
         return tex;

@@ -4,35 +4,33 @@ using Arbor.Graphics;
 using Arbor.Graphics.Shaders;
 using Arbor.Graphics.Shaders.Vertices;
 using Arbor.Timing;
-using GlmSharp;
 using Veldrid;
-using Texture = Arbor.Graphics.Textures.Texture;
 
 namespace Arbor.Elements.Components;
 
-public class Sprite : IComponent
+public class SpriteText : IComponent
 {
     public Entity Entity { get; set; } = null!;
 
     #region Properties
 
-    private Texture texture = null!;
-
-    public Texture Texture
+    private string text = string.Empty;
+    
+    public string Text
     {
-        get => texture;
+        get => text;
         set
         {
-            if (value == texture)
+            if (value == text)
                 return;
 
-            texture = value;
+            text = value;
             bufferCache.Invalidate();
         }
     }
-
+    
     private RgbaFloat colour = RgbaFloat.White;
-
+    
     public RgbaFloat Colour
     {
         get => colour;
@@ -52,10 +50,10 @@ public class Sprite : IComponent
     private VertexBuffer<VertexUvColour>? buffer;
     private IShaderSet? shader;
     private Transform? transform;
-
-    public Sprite()
+    
+    public SpriteText()
     {
-        SpriteSystem.Register(this);
+        SpriteTextSystem.Register(this);
     }
 
     public void Update(IClock clock)
@@ -63,9 +61,8 @@ public class Sprite : IComponent
         if (transform == null && Entity.GetComponent<Transform>() != null)
         {
             transform = Entity.GetComponent<Transform>();
-            transform!.Size = new vec2(Texture.DisplayWidth, Texture.DisplayHeight);
         }
-
+        
         if (!bufferCache.IsValid)
             validateBuffer();
     }
@@ -74,7 +71,7 @@ public class Sprite : IComponent
     {
         if (transform == null)
             return;
-
+        
         pipeline.PushMatrix(transform.Matrix);
         pipeline.BindShader(shader!);
         pipeline.DrawVertexBuffer(buffer!);
@@ -86,29 +83,14 @@ public class Sprite : IComponent
     {
         if (bufferCache.IsValid)
             return;
-
-        buffer?.Dispose();
-        shader?.Dispose();
-
-        transform!.Size = new vec2(Texture.DisplayWidth, Texture.DisplayHeight);
-
-        buffer = Entity.Pipeline.CreateVertexBuffer<VertexUvColour>();
-
-        var uv = texture.GetUvRect();
-
-        buffer.Add(new VertexUvColour(new vec2(0, 0), new vec2(uv.Left, uv.Top), Colour));
-        buffer.Add(new VertexUvColour(new vec2(texture.DisplayWidth, 0), new vec2(uv.Right, uv.Top), Colour));
-        buffer.Add(new VertexUvColour(new vec2(0, texture.DisplayHeight), new vec2(uv.Left, uv.Bottom), Colour));
-        buffer.Add(new VertexUvColour(new vec2(texture.DisplayWidth, texture.DisplayHeight), new vec2(uv.Right, uv.Bottom), Colour));
-
-        shader ??= ShaderSetHelper.CreateTexturedShaderSet(texture.TextureView, Entity.Pipeline.GetDefaultSampler());
+        
         bufferCache.Validate();
     }
-    
+
     public void Destroy()
     {
-        SpriteSystem.Remove(this);
-
+        SpriteTextSystem.Remove(this);
+        
         buffer?.Dispose();
         shader?.Dispose();
     }

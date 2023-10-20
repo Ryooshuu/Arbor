@@ -11,16 +11,47 @@ public abstract class Game : Scene
     public static ResourceStore<byte[]> Resources { get; private set; } = null!;
     public static TextureStore Textures { get; private set; } = null!;
     public static NativeStorage Storage { get; internal set; } = null!;
+    public static FontStore Fonts { get; internal set; } = null!;
+
+    private FontStore localFonts = null!;
+
 
     internal override void LoadInternal()
     {
-        Storage = new NativeStorage(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.Personal)));
+        Storage = new NativeStorage(Path.GetFullPath(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Window.Title)));
         
         Resources = new ResourceStore<byte[]>();
         Resources.AddStore(new DllResourceStore(ArborResources.ResourcesAssembly));
 
         Textures = new TextureStore(Pipeline, new TextureLoaderStore(new NamespacedResourceStore<byte[]>(Resources, @"Textures")));
+
+        var cacheStorage = Storage.GetStorageForDirectory("cached");
+        var fontStorage = cacheStorage.GetStorageForDirectory("fonts");
+        
+        Fonts = new FontStore(Pipeline, useAtlas: true, cacheStorage: fontStorage);
+        
+        Fonts.AddStore(localFonts = new FontStore(Pipeline, useAtlas: false));
+        
+        // Roboto
+        addFont(localFonts, Resources, @"Fonts/Roboto/Roboto-Regular");
+        addFont(localFonts, Resources, @"Fonts/Roboto/Roboto-RegularItalic");
+        addFont(localFonts, Resources, @"Fonts/Roboto/Roboto-Bold");
+        addFont(localFonts, Resources, @"Fonts/Roboto/Roboto-BoldItalic");
         
         base.LoadInternal();
+    }
+
+    public void AddFont(ResourceStore<byte[]> store, string? assetName = null, FontStore? target = null)
+        => addFont(target ?? Fonts, store, assetName);
+    
+    private void addFont(FontStore target, ResourceStore<byte[]> store, string? assetName = null)
+        => target.AddTextureSource(new RawCachingGlyphStore(store, assetName, new TextureLoaderStore(store)));
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        
+        Fonts.Dispose();
+        localFonts.Dispose();
     }
 }
