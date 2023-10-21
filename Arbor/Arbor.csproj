@@ -14,6 +14,7 @@
         <PackageReference Include="SixLabors.ImageSharp" Version="3.0.1" />
         <PackageReference Include="StbiSharp" Version="1.2.1" />
         <PackageReference Include="Veldrid" Version="4.9.0" />
+        <PackageReference Include="Veldrid.ImGui" Version="5.89.2-ga121087cad" />
         <PackageReference Include="Veldrid.SPIRV" Version="1.0.15" />
         <PackageReference Include="Veldrid.StartupUtilities" Version="4.9.0" />
     </ItemGroup>
@@ -25,6 +26,9 @@
     <ItemGroup>
       <Compile Update="Graphics\Textures\TextureAtlas_BackingAtlasTexture.cs">
         <DependentUpon>TextureAtlas.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Lists\WeakList_ValidItemsEnumerator.cs">
+        <DependentUpon>WeakList.cs</DependentUpon>
       </Compile>
     </ItemGroup>
 

@@ -21,7 +21,7 @@ public class SampleGame : Game
         var sprite = entity.AddComponent<Sprite>();
         transform = entity.AddComponent<Transform>();
         
-        // sprite.Texture = Textures.Get("10-wKGO250UVi.png")!;
+        sprite.Texture = Textures.Get("10-wKGO250UVi.png")!;
 
         var character = Fonts.Get("Roboto-Regular", 'A')!;
         sprite.Texture = character.Texture;

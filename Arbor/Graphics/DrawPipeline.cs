@@ -145,7 +145,7 @@ public class DrawPipeline : IDisposable
            .SetResourceLayouts(new[] { GlobalPropertyManager.GlobalResourceLayout })
            .SetShaderSet()
            .SetOutput(DevicePipeline.GetSwapchainFramebuffer().OutputDescription);
-
+        
         defaultPipelineDescription = builder.Build();
     }
 

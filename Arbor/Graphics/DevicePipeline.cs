@@ -2,6 +2,7 @@
 using Arbor.Graphics.Shaders;
 using Arbor.Graphics.Shaders.Vertices;
 using Arbor.Graphics.Textures;
+using Arbor.Lists;
 using Veldrid;
 using Veldrid.SPIRV;
 using Shader = Veldrid.Shader;
@@ -11,21 +12,23 @@ namespace Arbor.Graphics;
 
 public class DevicePipeline : IDisposable
 {
-    private readonly GraphicsDevice device;
+    private readonly LockedWeakList<Texture> allTextures = new LockedWeakList<Texture>();
+    
+    internal readonly GraphicsDevice Device;
     internal readonly DrawPipeline DrawPipeline;
 
-    internal ResourceFactory Factory => device.ResourceFactory;
+    internal ResourceFactory Factory => Device.ResourceFactory;
 
     public DevicePipeline(GraphicsDevice device)
     {
-        this.device = device;
+        Device = device;
         DrawPipeline = new DrawPipeline(this);
     }
 
     internal void Submit(CommandList commandList)
     {
-        device.SubmitCommands(commandList);
-        device.SwapBuffers();
+        Device.SubmitCommands(commandList);
+        Device.SwapBuffers();
     }
 
     internal Pipeline CreatePipeline(GraphicsPipelineDescription description)
@@ -49,7 +52,7 @@ public class DevicePipeline : IDisposable
 
         var buffer = Factory.CreateBuffer(new BufferDescription(bufferSize, usage));
         if (values.Length > 0)
-            device.UpdateBuffer(buffer, 0, values);
+            Device.UpdateBuffer(buffer, 0, values);
 
         return buffer;
     }
@@ -57,7 +60,7 @@ public class DevicePipeline : IDisposable
     public void UpdateBuffer<T>(DeviceBuffer buffer, T[] values, uint offset = 0)
         where T : unmanaged
     {
-        device.UpdateBuffer(buffer, offset, values);
+        Device.UpdateBuffer(buffer, offset, values);
     }
 
     #endregion
@@ -65,10 +68,13 @@ public class DevicePipeline : IDisposable
     #region Textures
 
     public Framebuffer GetSwapchainFramebuffer()
-        => device.SwapchainFramebuffer;
+        => Device.SwapchainFramebuffer;
 
     public Sampler GetDefaultSampler()
-        => device.Aniso4xSampler;
+        => Device.Aniso4xSampler;
+    
+    internal Texture[] GetAllTextures()
+        => allTextures.ToArray();
 
     public Texture CreateTexture(TextureUpload texture)
     {
@@ -76,7 +82,7 @@ public class DevicePipeline : IDisposable
             TextureUsage.Sampled | TextureUsage.RenderTarget);
         var tex = Factory.CreateTexture(ref description);
 
-        return new Texture(tex, this);
+        return registerTexture(new Texture(tex, this));
     }
 
     public Texture? CreateTexture(int width, int height, RgbaFloat initialisationColour)
@@ -101,7 +107,16 @@ public class DevicePipeline : IDisposable
     public void UpdateTexture<T>(Veldrid.Texture original, uint x, uint y, uint width, uint height, ReadOnlySpan<T> data)
         where T : unmanaged
     {
-        device.UpdateTexture(original, data, x, y, 0, width, height, 1, 0, 0);
+        Device.UpdateTexture(original, data, x, y, 0, width, height, 1, 0, 0);
+    }
+
+    internal event Action<Texture>? TextureCreated;
+
+    private Texture registerTexture(Texture texture)
+    {
+        allTextures.Add(texture);
+        TextureCreated?.Invoke(texture);
+        return texture;
     }
 
     #endregion
@@ -133,6 +148,6 @@ public class DevicePipeline : IDisposable
     public void Dispose()
     {
         DrawPipeline.Dispose();
-        device.Dispose();
+        Device.Dispose();
     }
 }

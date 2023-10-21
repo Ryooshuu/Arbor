@@ -47,6 +47,7 @@ public class Scene : IDisposable
     internal void UpdateInternal(IFrameBasedClock clock)
     {
         SpriteSystem.Update(clock);
+        SpriteTextSystem.Update(clock);
         Update(clock);
     }
     
@@ -57,6 +58,7 @@ public class Scene : IDisposable
     internal void DrawInternal(DrawPipeline pipeline)
     {
         SpriteSystem.Draw(pipeline);
+        SpriteTextSystem.Draw(pipeline);
         Draw(pipeline);
     }
     
@@ -73,6 +75,7 @@ public class Scene : IDisposable
     public void Dispose()
     {
         SpriteSystem.Destroy();
+        SpriteTextSystem.Destroy();
         foreach (var entity in aliveEntities)
         {
             entity.OnDispose -= removeEntity;

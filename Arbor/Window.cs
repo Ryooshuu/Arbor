@@ -11,6 +11,8 @@ namespace Arbor;
 
 public class Window : IDisposable
 {
+    internal static ImGuiRenderer Igr = null!;
+    
     private readonly WindowCreateInfo createInfo;
     private Game runningGame = null!;
 
@@ -40,6 +42,9 @@ public class Window : IDisposable
         runningGame.Window = this;
 
         createWindow();
+        
+        Igr = new ImGuiRenderer(device, device.SwapchainFramebuffer.OutputDescription, window.Width, window.Height);
+        window.Resized += () => Igr.WindowResized(window.Width, window.Height);
 
         var mode = new SDL_DisplayMode();
         Sdl2Native.SDL_GetDesktopDisplayMode(0, &mode);
@@ -54,6 +59,7 @@ public class Window : IDisposable
             
             clock.ProcessFrame();
             runningGame.UpdateInternal(clock);
+            Igr.Update((float)clock.TimeInfo.Elapsed, snapshot);
             draw();
         }
     }

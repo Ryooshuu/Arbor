@@ -11,6 +11,7 @@ public class DrawEnd : DrawCommand
 
     public override void Execute(CommandList cl)
     {
+        Window.Igr.Render(Pipeline.DevicePipeline.Device, cl);
         cl.End();
     }
 }
