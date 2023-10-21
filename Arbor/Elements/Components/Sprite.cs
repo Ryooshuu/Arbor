@@ -91,6 +91,10 @@ public class Sprite : IComponent
         shader?.Dispose();
 
         transform!.Size = new vec2(Texture.DisplayWidth, Texture.DisplayHeight);
+        
+        // TODO: This is incorrect, we'd want the entity to calculate the size based on the combined size of all components.
+        Entity.Width = Texture.DisplayWidth;
+        Entity.Height = Texture.DisplayHeight;
 
         buffer = Entity.Pipeline.CreateVertexBuffer<VertexUvColour>();
 

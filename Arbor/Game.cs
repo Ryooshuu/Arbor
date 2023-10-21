@@ -1,11 +1,10 @@
-using System.Numerics;
+using Arbor.Debugging;
 using Arbor.Elements;
 using Arbor.Graphics;
 using Arbor.Graphics.Textures;
 using Arbor.IO.Stores;
 using Arbor.Platform;
 using Arbor.Resources;
-using ImGuiNET;
 
 namespace Arbor;
 
@@ -41,6 +40,9 @@ public abstract class Game : Scene
         addFont(localFonts, Resources, @"Fonts/Roboto/Roboto-Bold");
         addFont(localFonts, Resources, @"Fonts/Roboto/Roboto-BoldItalic");
 
+        var debugEntity = CreateEntity();
+        debugEntity.AddComponent<TextureVisualiserComponent>();
+
         base.LoadInternal();
     }
 
@@ -52,87 +54,13 @@ public abstract class Game : Scene
 
     protected override void Draw(DrawPipeline pipeline)
     {
-        if (ImGui.IsKeyDown(ImGuiKey.F1) && ImGui.Begin("Texture Visualiser"))
+        foreach (var entity in Entities)
         {
-            ImGui.Text("Atlases textures");
-            if (ImGui.BeginTable("Atlases", 3))
+            var components = entity.Components.Where(c => c is IDebugComponent);
+            foreach (var component in components)
             {
-                ImGui.TableNextRow();
-                var column = 0;
-
-                var textures = pipeline.DevicePipeline.GetAllTextures();
-
-                foreach (var texture in textures)
-                {
-                    if (!texture.IsAtlasTexture)
-                        continue;
-
-                    if (column == 3)
-                    {
-                        ImGui.TableNextRow();
-                        column = 0;
-                    }
-
-                    ImGui.TableSetColumnIndex(column++);
-
-                    var binding = Window.Igr.GetOrCreateImGuiBinding(pipeline.DevicePipeline.Factory, texture.NativeTexture);
-                    ImGui.Image(binding, new Vector2(128));
-
-                    if (ImGui.IsItemHovered())
-                    {
-                        ImGui.BeginTooltip();
-                        ImGui.Text($"{texture.AssetName} | {texture.LookupKey}");
-                        ImGui.Text("");
-                        ImGui.Text($"Size: {texture.Width}x{texture.Height}");
-                        ImGui.Text($"Displayable size: {texture.DisplayWidth}x{texture.DisplayHeight}");
-                        ImGui.Image(binding, new Vector2(texture.Width / 2f, texture.Height / 2f));
-                        ImGui.EndTooltip();
-                    }
-                }
-
-                ImGui.EndTable();
+                component.Draw(pipeline);
             }
-
-            ImGui.Text("Textures");
-            if (ImGui.BeginTable("Textures", 3))
-            {
-                ImGui.TableNextRow();
-                var column = 0;
-
-                var textures = pipeline.DevicePipeline.GetAllTextures();
-
-                foreach (var texture in textures)
-                {
-                    if (texture.IsAtlasTexture)
-                        continue;
-                
-                    if (column == 3)
-                    {
-                        ImGui.TableNextRow();
-                        column = 0;
-                    }
-                    
-                    ImGui.TableSetColumnIndex(column++);
-                    
-                    var binding = Window.Igr.GetOrCreateImGuiBinding(pipeline.DevicePipeline.Factory, texture.NativeTexture);
-                    ImGui.Image(binding, new Vector2(128));
-                
-                    if (ImGui.IsItemHovered())
-                    {
-                        ImGui.BeginTooltip();
-                        ImGui.Text($"{texture.AssetName} | {texture.LookupKey}");
-                        ImGui.Text("");
-                        ImGui.Text($"Size: {texture.Width}x{texture.Height}");
-                        ImGui.Text($"Displayable size: {texture.DisplayWidth}x{texture.DisplayHeight}");
-                        ImGui.Image(binding, new Vector2(texture.Width / 2f, texture.Height / 2f));
-                        ImGui.EndTooltip();
-                    }
-                }
-
-                ImGui.EndTable();
-            }
-
-            ImGui.End();
         }
     }
 

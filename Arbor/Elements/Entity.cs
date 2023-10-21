@@ -6,6 +6,9 @@ public class Entity : IDisposable
 {
     public Action<Entity>? OnDispose { get; set; }
     
+    public float Width { get; set; }
+    public float Height { get; set; }
+    
     internal uint Id { get; set; }
     internal DevicePipeline Pipeline { get; private set; }
     internal IReadOnlyList<IComponent> Components => componentMap.Values.ToList().AsReadOnly();
