@@ -5,6 +5,7 @@ using Arbor.Graphics.Textures;
 using Arbor.IO.Stores;
 using Arbor.Platform;
 using Arbor.Resources;
+using Arbor.Timing;
 
 namespace Arbor;
 
@@ -52,14 +53,24 @@ public abstract class Game : Scene
     private void addFont(FontStore target, ResourceStore<byte[]> store, string? assetName = null)
         => target.AddTextureSource(new RawCachingGlyphStore(store, assetName, new TextureLoaderStore(store)));
 
+    protected override void Update(IFrameBasedClock clock)
+    {
+        propagateDebugComponents(c => c.Update(clock));   
+    }
+
     protected override void Draw(DrawPipeline pipeline)
+    {
+        propagateDebugComponents(c => c.Draw(pipeline));
+    }
+
+    private void propagateDebugComponents(Action<IDebugComponent> action)
     {
         foreach (var entity in Entities)
         {
             var components = entity.Components.Where(c => c is IDebugComponent);
-            foreach (var component in components)
+            foreach (var c in components)
             {
-                component.Draw(pipeline);
+                action((IDebugComponent)c);
             }
         }
     }
