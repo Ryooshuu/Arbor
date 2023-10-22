@@ -18,14 +18,16 @@ public class SampleGame : Game
         Resources.AddStore(new NamespacedResourceStore<byte[]>(new DllResourceStore(typeof(SampleGame).Assembly), @"Resources"));
         
         entity = CreateEntity();
-        var text = entity.AddComponent<SpriteText>();
-        transform = entity.AddComponent<Transform>();
-
-        text.Font = new FontInfo("Roboto", italics: true);
-        text.Text = "Hello, World!";
-        
-        transform.Position = new vec2(100, 100);
-        transform.Scale = new vec2(50f);
+        entity.AddComponent(new SpriteText
+        {
+            Font = new FontInfo("Roboto", italics: true),
+            Text = "Hello, World!"
+        });
+        transform = entity.AddComponent(new Transform
+        {
+            Position = new vec2(100, 100),
+            Scale = new vec2(50f)
+        });
 
         // var sprite = entity.AddComponent<Sprite>();
         // transform = entity.AddComponent<Transform>();

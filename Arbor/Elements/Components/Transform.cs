@@ -1,4 +1,6 @@
+using Arbor.Caching;
 using Arbor.Elements.Systems;
+using Arbor.Timing;
 using Arbor.Utils;
 using GlmSharp;
 
@@ -8,10 +10,11 @@ public class Transform : IComponent
 {
     public Entity Entity { get; set; } = null!;
     
-    private mat4 matrix = mat4.Identity;
+    private readonly Cached<mat4> matrixCache = new Cached<mat4>();
 
-    public mat4 Matrix => matrix;
-    public mat4 MatrixInverse => matrix.Inverse;
+    public mat4 Matrix => getMatrix();
+
+    public mat4 MatrixInverse => getMatrix().Inverse;
 
     #region Properties
 
@@ -26,7 +29,7 @@ public class Transform : IComponent
                 return;
             
             position = value;
-            validateMatrix();
+            matrixCache.Invalidate();
         }
     }
 
@@ -41,10 +44,10 @@ public class Transform : IComponent
                 return;
             
             scale = value;
-            validateMatrix();
+            matrixCache.Invalidate();
         }
     }
-    
+
     private float rotation = 0;
 
     public float Rotation
@@ -56,7 +59,7 @@ public class Transform : IComponent
                 return;
             
             rotation = value;
-            validateMatrix();
+            matrixCache.Invalidate();
         }
     }
 
@@ -71,7 +74,7 @@ public class Transform : IComponent
                 return;
             
             size = value;
-            validateMatrix();
+            matrixCache.Invalidate();
         }
     }
 
@@ -88,7 +91,7 @@ public class Transform : IComponent
                 throw new ArgumentException("Value cannot be smaller than 0 or bigger than 1", nameof(value));
 
             originPosition = value;
-            validateMatrix();
+            matrixCache.Invalidate();
         }
     }
 
@@ -100,7 +103,7 @@ public class Transform : IComponent
         set
         {
             origin = value;
-            validateMatrix();
+            matrixCache.Invalidate();
         }
     }
 
@@ -109,6 +112,12 @@ public class Transform : IComponent
     public Transform()
     {
         TransformSystem.Register(this);
+    }
+
+    public void Update(IClock clock)
+    {
+        if (!matrixCache.IsValid)
+            validateMatrix();
     }
 
     private void validateMatrix()
@@ -130,7 +139,7 @@ public class Transform : IComponent
         if (offset != vec2.Zero)
             mat *= mat4.Translate(-offset.x, -offset.y, 0);
         
-        matrix = mat;
+        matrixCache.Value = mat;
     }
 
     private vec2 calculateOriginPosition()
@@ -153,10 +162,19 @@ public class Transform : IComponent
         return result;
     }
 
+    private mat4 getMatrix()
+    {
+        if (!matrixCache.IsValid)
+            validateMatrix();
+
+        return matrixCache.Value;
+    }
+
     public void Destroy()
     {
         TransformSystem.Remove(this);
     }
+
 }
 
 [Flags]

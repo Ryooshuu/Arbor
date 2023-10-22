@@ -33,6 +33,16 @@ public class Entity : IDisposable
         
         return component;
     }
+
+    public T AddComponent<T>(T instance)
+        where T : IComponent
+    {
+        instance.Entity = this;
+        instance.Initialize();
+        componentMap.Add(typeof(T), instance);
+
+        return instance;
+    }
     
     public T? GetComponent<T>()
         where T : class, IComponent
