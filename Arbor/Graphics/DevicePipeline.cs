@@ -36,8 +36,8 @@ public class DevicePipeline : IDisposable
 
     #region Buffers
 
-    public VertexBuffer<T> CreateVertexBuffer<T>()
-        where T : unmanaged => new VertexBuffer<T>(this);
+    public VertexBuffer<T> CreateVertexBuffer<T>(IndexLayout layout = IndexLayout.Linear)
+        where T : unmanaged => new VertexBuffer<T>(this, layout);
 
     public DeviceBuffer CreateBuffer(BufferUsage usage, uint size)
         => Factory.CreateBuffer(new BufferDescription(size, usage));

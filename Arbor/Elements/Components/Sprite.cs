@@ -96,15 +96,18 @@ public class Sprite : IComponent
         Entity.Width = Texture.DisplayWidth;
         Entity.Height = Texture.DisplayHeight;
 
-        buffer = Entity.Pipeline.CreateVertexBuffer<VertexUvColour>();
+        buffer = Entity.Pipeline.CreateVertexBuffer<VertexUvColour>(IndexLayout.Quad);
 
         var uv = texture.GetUvRect();
-
-        buffer.Add(new VertexUvColour(new vec2(0, 0), new vec2(uv.Left, uv.Top), Colour));
-        buffer.Add(new VertexUvColour(new vec2(texture.DisplayWidth, 0), new vec2(uv.Right, uv.Top), Colour));
-        buffer.Add(new VertexUvColour(new vec2(0, texture.DisplayHeight), new vec2(uv.Left, uv.Bottom), Colour));
-        buffer.Add(new VertexUvColour(new vec2(texture.DisplayWidth, texture.DisplayHeight), new vec2(uv.Right, uv.Bottom), Colour));
-
+        
+        buffer.AddRange(new[]
+        {
+            new VertexUvColour(new vec2(0, 0), new vec2(uv.Left, uv.Top), Colour),
+            new VertexUvColour(new vec2(texture.DisplayWidth, 0), new vec2(uv.Right, uv.Top), Colour),
+            new VertexUvColour(new vec2(0, texture.DisplayHeight), new vec2(uv.Left, uv.Bottom), Colour),
+            new VertexUvColour(new vec2(texture.DisplayWidth, texture.DisplayHeight), new vec2(uv.Right, uv.Bottom), Colour)
+        });
+        
         shader ??= ShaderSetHelper.CreateTexturedShaderSet(texture.TextureView, Entity.Pipeline.GetDefaultSampler());
         bufferCache.Validate();
     }

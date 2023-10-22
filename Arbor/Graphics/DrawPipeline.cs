@@ -3,6 +3,7 @@ using Arbor.Graphics.Commands;
 using Arbor.Graphics.Shaders;
 using Arbor.Graphics.Shaders.Uniforms;
 using Arbor.Graphics.Shaders.Vertices;
+using Arbor.Statistics;
 using Arbor.Utils;
 using GlmSharp;
 using Veldrid;
@@ -81,6 +82,7 @@ public class DrawPipeline : IDisposable
     public void DrawVertexBuffer(IVertexBuffer buffer)
     {
         drawStack.Push(new DrawVertexBuffer(this, buffer));
+        FrameStatistics.Increment(StatisticsCounterType.DrawCalls);
     }
     
     public void PushMatrix(mat4 matrix)
@@ -126,21 +128,9 @@ public class DrawPipeline : IDisposable
     {
         var builder = new GraphicsPipelineDescriptionBuilder();
 
-        builder.SetDepthStencilState(new DepthStencilStateDescription
-            {
-                DepthTestEnabled = true,
-                DepthWriteEnabled = true,
-                DepthComparison = ComparisonKind.LessEqual
-            })
-           .SetRasterizerState(new RasterizerStateDescription
-            {
-                CullMode = FaceCullMode.Back,
-                FillMode = PolygonFillMode.Solid,
-                FrontFace = FrontFace.Clockwise,
-                DepthClipEnabled = true,
-                ScissorTestEnabled = false
-            })
-           .SetPrimitiveTopology(PrimitiveTopology.TriangleStrip)
+        builder.SetDepthStencilState(DepthStencilStateDescription.Disabled)
+           .SetRasterizerState(RasterizerStateDescription.CullNone)
+           .SetPrimitiveTopology(PrimitiveTopology.TriangleList)
            .SetBlendState(BlendStateDescription.SingleAlphaBlend)
            .SetResourceLayouts(new[] { GlobalPropertyManager.GlobalResourceLayout })
            .SetShaderSet()
