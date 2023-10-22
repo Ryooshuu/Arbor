@@ -10,6 +10,10 @@ public class Scene : IDisposable
     internal Window Window = null!;
     
     internal DevicePipeline Pipeline => Window.Pipeline;
+
+    internal IFrameBasedClock FramedClock = null!;
+
+    public IClock Clock => FramedClock;
     
     #region Entity Management
     
@@ -20,8 +24,9 @@ public class Scene : IDisposable
     public Entity CreateEntity()
     {
         var entity = new Entity(Pipeline);
-        aliveEntities.Add(entity);
+        entity.SwitchClock(Clock);
         entity.OnDispose += removeEntity;
+        aliveEntities.Add(entity);
         
         return entity;
     }

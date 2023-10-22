@@ -1,6 +1,7 @@
 ﻿using Arbor.Caching;
 using Arbor.Graphics;
 using Arbor.Graphics.Shaders.Uniforms;
+using Arbor.Statistics;
 using Arbor.Timing;
 using GlmSharp;
 using Veldrid;
@@ -52,6 +53,9 @@ public class Window : IDisposable
         clock = new ThrottledFrameClock();
         clock.MaximumUpdateHz = mode.refresh_rate * 2;
 
+        runningGame.FramedClock = clock;
+        runningGame.LoadInternal();
+
         // TODO: Run in separate threads for input, audio, update, and draw.
         while (window.Exists)
         {
@@ -81,7 +85,6 @@ public class Window : IDisposable
         };
 
         Pipeline = new DevicePipeline(device);
-        runningGame.LoadInternal();
         invalidatePixelMatrix();
     }
 
@@ -95,6 +98,8 @@ public class Window : IDisposable
 
     private void draw()
     {
+        FrameStatistics.Clear();
+        FrameStatistics.COUNTERS[(int) StatisticsCounterType.DrawCalls] = 0;
         drawPipeline.Start();
 
         if (!pixelMatrixBufferCache.IsValid)

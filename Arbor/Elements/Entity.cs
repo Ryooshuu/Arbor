@@ -1,11 +1,11 @@
 using Arbor.Graphics;
+using Arbor.Timing;
 
 namespace Arbor.Elements;
 
 public class Entity : IDisposable
 {
     public Action<Entity>? OnDispose { get; set; }
-    
     public float Width { get; set; }
     public float Height { get; set; }
     
@@ -14,6 +14,10 @@ public class Entity : IDisposable
     internal IReadOnlyList<IComponent> Components => componentMap.Values.ToList().AsReadOnly();
 
     private readonly Dictionary<Type, IComponent> componentMap = new Dictionary<Type, IComponent>();
+    
+    private IClock? clock = new StopwatchClock();
+
+    public IClock Clock => clock!;
 
     internal Entity(DevicePipeline pipeline)
     {
@@ -34,6 +38,11 @@ public class Entity : IDisposable
         where T : class, IComponent
     {
         return componentMap.TryGetValue(typeof(T), out var component) ? (T)component : null;
+    }
+    
+    public void SwitchClock(IClock clock)
+    {
+        this.clock = clock;
     }
 
     public void Dispose()
