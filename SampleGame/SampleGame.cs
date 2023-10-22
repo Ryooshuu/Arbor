@@ -5,6 +5,7 @@ using Arbor.IO.Stores;
 using Arbor.Text;
 using Arbor.Timing;
 using GlmSharp;
+using Veldrid;
 
 namespace SampleGame;
 
@@ -21,7 +22,8 @@ public class SampleGame : Game
         entity.AddComponent(new SpriteText
         {
             Font = new FontInfo("Roboto", italics: true),
-            Text = "Hello, World!"
+            Text = "Hello, World!",
+            Colour = RgbaFloat.CornflowerBlue
         });
         transform = entity.AddComponent(new Transform
         {

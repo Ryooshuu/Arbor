@@ -25,8 +25,8 @@ public class StatisticsComponent : IDebugComponent
             ImGui.Text($"Vertices: {vertices}");
             ImGui.Text($"Indices: {indices}");
             ImGui.Text($"Buffers: {buffers}");
-            ImGui.Text($"Vertex Memory Usage: {vertexMemUsage}");
-            ImGui.Text($"Index Memory Usage: {indexMemUsage}");
+            ImGui.Text($"Vertex Memory Usage: {formatSizes(vertexMemUsage)}");
+            ImGui.Text($"Index Memory Usage: {formatSizes(indexMemUsage)}");
             ImGui.Text($"Time: {Entity.Clock.CurrentTime:n}ms");
 
             var framedClock = Entity.Clock as FramedClock;
@@ -36,5 +36,24 @@ public class StatisticsComponent : IDebugComponent
             
             ImGui.End();
         }
+    }
+
+    private readonly string[] sizeSuffixes = { "B", "KB", "MB", "GB" };
+    
+    private string formatSizes(long value, int decimalPlaces = 2)
+    {
+        if (value < 0)
+            return "-" + formatSizes(-value, decimalPlaces);
+
+        var i = 0;
+        var dValue = (decimal) value;
+
+        while (Math.Round(dValue, decimalPlaces) >= 1000)
+        {
+            dValue /= 1024;
+            i++;
+        }
+
+        return string.Format("{0:n" + decimalPlaces + "} {1}", dValue, sizeSuffixes[i]);
     }
 }

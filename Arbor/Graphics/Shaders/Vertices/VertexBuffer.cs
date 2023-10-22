@@ -42,15 +42,19 @@ public class VertexBuffer<T> : IVertexBuffer
 
         updateIndices();
         updateBuffers();
-        
-        FrameStatistics.Add(StatisticsCounterType.Vertices, vertices.Count);
-        FrameStatistics.Add(StatisticsCounterType.VertexMemUsage, (long) vertices.Count * Marshal.SizeOf<T>());
+
+        var count = vertexArray.Count();
+        FrameStatistics.Add(StatisticsCounterType.Vertices, count);
+        FrameStatistics.Add(StatisticsCounterType.VertexMemUsage, (long) count * Marshal.SizeOf<T>());
     }
 
     private void updateIndices()
     {
         const int vertices_per_quad = 4;
         const int indices_per_quad = vertices_per_quad + 2;
+
+        FrameStatistics.Decrement(StatisticsCounterType.Indices, indices.Length);
+        FrameStatistics.Decrement(StatisticsCounterType.IndexMemUsage, (long) indices.Length * sizeof(ushort));
 
         indices = new ushort[translateToIndex(vertices.Count)];
 
