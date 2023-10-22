@@ -4,6 +4,8 @@ public class TextureRegion : Texture
 {
     private readonly Texture parent;
     private readonly Rectangle bounds;
+    
+    internal Texture Parent => parent;
 
     public TextureRegion(Texture parent, Rectangle bounds)
         : base(parent)

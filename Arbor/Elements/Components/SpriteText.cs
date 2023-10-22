@@ -3,8 +3,12 @@ using Arbor.Elements.Systems;
 using Arbor.Graphics;
 using Arbor.Graphics.Shaders;
 using Arbor.Graphics.Shaders.Vertices;
+using Arbor.Graphics.Textures;
+using Arbor.Text;
 using Arbor.Timing;
+using GlmSharp;
 using Veldrid;
+using Texture = Arbor.Graphics.Textures.Texture;
 
 namespace Arbor.Elements.Components;
 
@@ -28,6 +32,21 @@ public class SpriteText : IComponent
             bufferCache.Invalidate();
         }
     }
+
+    private FontInfo font = new FontInfo("Roboto");
+    
+    public FontInfo Font
+    {
+        get => font;
+        set
+        {
+            if (value == font)
+                return;
+
+            font = value;
+            bufferCache.Invalidate();
+        }
+    }
     
     private RgbaFloat colour = RgbaFloat.White;
     
@@ -47,6 +66,7 @@ public class SpriteText : IComponent
     #endregion
 
     private readonly Cached bufferCache = new Cached();
+    private Texture? fontAtlas;
     private VertexBuffer<VertexUvColour>? buffer;
     private IShaderSet? shader;
     private Transform? transform;
@@ -83,10 +103,49 @@ public class SpriteText : IComponent
     {
         if (bufferCache.IsValid)
             return;
+
+        buffer ??= Entity.Pipeline.CreateVertexBuffer<VertexUvColour>(IndexLayout.Quad);
+        buffer.Clear();
         
+        foreach (var c in Text)
+            addCharacterQuad(c);
+        
+        if (fontAtlas == null)
+            return;
+        
+        shader ??= ShaderSetHelper.CreateTexturedShaderSet(fontAtlas.TextureView, Entity.Pipeline.GetDefaultSampler());
         bufferCache.Validate();
     }
+    
+    private float xAdvance;
 
+    private void addCharacterQuad(char c)
+    {
+        var glyph = Game.Fonts.Get(font.ToString(), c);
+        if (glyph == null)
+            return;
+
+        if (fontAtlas == null)
+        {
+            var region = glyph.Texture as TextureRegion;
+            fontAtlas = region?.Parent;
+        }
+
+        var uv = glyph.Texture.GetUvRect();
+        var x = xAdvance + glyph.XOffset;
+        var y = glyph.YOffset;
+        
+        buffer!.AddRange(new[]
+        {
+            new VertexUvColour(new vec2(x, y), new vec2(uv.Left, uv.Top), colour),
+            new VertexUvColour(new vec2(x + glyph.Width, y), new vec2(uv.Right, uv.Top), colour),
+            new VertexUvColour(new vec2(x, y + glyph.Height), new vec2(uv.Left, uv.Bottom), colour),
+            new VertexUvColour(new vec2(x + glyph.Width, y + glyph.Height), new vec2(uv.Right, uv.Bottom), colour)
+        });
+
+        xAdvance += glyph.XAdvance;
+    }
+    
     public void Destroy()
     {
         SpriteTextSystem.Remove(this);
