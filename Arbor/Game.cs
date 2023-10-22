@@ -43,6 +43,7 @@ public abstract class Game : Scene
 
         var debugEntity = CreateEntity();
         debugEntity.AddComponent<TextureVisualiserComponent>();
+        debugEntity.AddComponent<StatisticsComponent>();
 
         base.LoadInternal();
     }
