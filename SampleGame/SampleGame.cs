@@ -28,7 +28,8 @@ public class SampleGame : Game
         transform = entity.AddComponent(new Transform
         {
             Position = new vec2(100, 100),
-            Scale = new vec2(50f)
+            Scale = new vec2(50f),
+            Origin = Anchor.Centre
         });
 
         // var sprite = entity.AddComponent<Sprite>();
@@ -40,11 +41,12 @@ public class SampleGame : Game
         // transform.Position = new vec2(100, 100);
         // // transform.Rotation -= 10;
         // transform.Scale = new vec2(1f);
+        // transform.Origin = Anchor.Centre;
     }
 
     protected override void Update(IFrameBasedClock clock)
     {
-        // transform.Position = new vec2((float) (transform.Position.x + 0.1f * clock.ElapsedFrameTime), transform.Position.y);
-        // transform.Rotation += (float)(0.1f * clock.ElapsedFrameTime);
+        transform.Position = new vec2((float) (transform.Position.x + 0.1f * clock.ElapsedFrameTime), transform.Position.y);
+        transform.Rotation += (float)(0.1f * clock.ElapsedFrameTime);
     }
 }

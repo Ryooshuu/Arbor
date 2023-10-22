@@ -12,9 +12,13 @@ using Texture = Arbor.Graphics.Textures.Texture;
 
 namespace Arbor.Elements.Components;
 
-public class SpriteText : IComponent
+public class SpriteText : IComponent, IHasSize
 {
     public Entity Entity { get; set; } = null!;
+
+    private vec2 drawSize = vec2.Zero;
+
+    public vec2 DrawSize => drawSize;
 
     #region Properties
 
@@ -107,6 +111,8 @@ public class SpriteText : IComponent
         buffer ??= Entity.Pipeline.CreateVertexBuffer<VertexUvColour>(IndexLayout.Quad);
         buffer.Clear();
         
+        drawSize = vec2.Zero;
+        
         foreach (var c in Text)
             addCharacterQuad(c);
         
@@ -115,6 +121,7 @@ public class SpriteText : IComponent
         
         shader ??= ShaderSetHelper.CreateTexturedShaderSet(fontAtlas.TextureView, Entity.Pipeline.GetDefaultSampler());
         bufferCache.Validate();
+        Entity.Invalidate(EntityInvalidation.DrawSize);
     }
     
     private float xAdvance;
@@ -142,6 +149,9 @@ public class SpriteText : IComponent
             new VertexUvColour(new vec2(x, y + glyph.Height), new vec2(uv.Left, uv.Bottom), colour),
             new VertexUvColour(new vec2(x + glyph.Width, y + glyph.Height), new vec2(uv.Right, uv.Bottom), colour)
         });
+        
+        drawSize.x = Math.Max(drawSize.x, x + glyph.Width);
+        drawSize.y = Math.Max(drawSize.y, y + glyph.Height);
 
         xAdvance += glyph.XAdvance;
     }

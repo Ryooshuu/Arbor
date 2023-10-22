@@ -10,13 +10,18 @@ using Texture = Arbor.Graphics.Textures.Texture;
 
 namespace Arbor.Elements.Components;
 
-public class Sprite : IComponent
+public class Sprite : IComponent, IHasSize
 {
     public Entity Entity { get; set; } = null!;
+    
+    private vec2 drawSize = vec2.Zero;
+    public vec2 DrawSize => drawSize;
+
 
     #region Properties
 
     private Texture texture = null!;
+
 
     public Texture Texture
     {
@@ -32,6 +37,7 @@ public class Sprite : IComponent
     }
 
     private RgbaFloat colour = RgbaFloat.White;
+
 
     public RgbaFloat Colour
     {
@@ -52,6 +58,7 @@ public class Sprite : IComponent
     private VertexBuffer<VertexUvColour>? buffer;
     private IShaderSet? shader;
     private Transform? transform;
+
 
     public Sprite()
     {
@@ -89,13 +96,11 @@ public class Sprite : IComponent
 
         buffer?.Dispose();
         shader?.Dispose();
-
+        
+        // TODO: conform to the size of the transform instead of the texture if it is set.
+        drawSize = new vec2(Texture.DisplayWidth, Texture.DisplayHeight);
         transform!.Size = new vec2(Texture.DisplayWidth, Texture.DisplayHeight);
         
-        // TODO: This is incorrect, we'd want the entity to calculate the size based on the combined size of all components.
-        Entity.Width = Texture.DisplayWidth;
-        Entity.Height = Texture.DisplayHeight;
-
         buffer = Entity.Pipeline.CreateVertexBuffer<VertexUvColour>(IndexLayout.Quad);
 
         var uv = texture.GetUvRect();
@@ -110,8 +115,9 @@ public class Sprite : IComponent
         
         shader ??= ShaderSetHelper.CreateTexturedShaderSet(texture.TextureView, Entity.Pipeline.GetDefaultSampler());
         bufferCache.Validate();
+        Entity.Invalidate(EntityInvalidation.DrawSize);
     }
-    
+
     public void Destroy()
     {
         SpriteSystem.Remove(this);

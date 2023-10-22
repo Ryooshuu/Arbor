@@ -9,7 +9,7 @@ namespace Arbor.Elements.Components;
 public class Transform : IComponent
 {
     public Entity Entity { get; set; } = null!;
-    
+
     private readonly Cached<mat4> matrixCache = new Cached<mat4>();
 
     public mat4 Matrix => getMatrix();
@@ -118,6 +118,12 @@ public class Transform : IComponent
     {
         if (!matrixCache.IsValid)
             validateMatrix();
+    }
+
+    public void OnEntityInvalidated(EntityInvalidation invalidation)
+    {
+        if (invalidation == EntityInvalidation.DrawSize)
+            matrixCache.Invalidate();
     }
 
     private void validateMatrix()

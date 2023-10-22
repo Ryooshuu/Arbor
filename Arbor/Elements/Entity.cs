@@ -5,10 +5,11 @@ namespace Arbor.Elements;
 
 public class Entity : IDisposable
 {
-    public Action<Entity>? OnDispose { get; set; }
     public float Width { get; set; }
     public float Height { get; set; }
-    
+    public Action<Entity>? OnDispose { get; set; }
+    public Action<EntityInvalidation>? OnInvalidated { get; set; }
+
     internal uint Id { get; set; }
     internal DevicePipeline Pipeline { get; private set; }
     internal IReadOnlyList<IComponent> Components => componentMap.Values.ToList().AsReadOnly();
@@ -54,6 +55,36 @@ public class Entity : IDisposable
     {
         this.clock = clock;
     }
+    
+    public void Invalidate(EntityInvalidation invalidation)
+    {
+        handleInvalidation(invalidation);
+        OnInvalidated?.Invoke(invalidation);
+    }
+    
+    private void handleInvalidation(EntityInvalidation invalidation)
+    {
+        foreach (var component in Components)
+        {
+            switch (invalidation)
+            {
+                case EntityInvalidation.DrawSize:
+                    if (component is IHasSize hasSize)
+                    {
+                        var size = hasSize.DrawSize;
+                        Width = Math.Max(Width, size.x);
+                        Height = Math.Max(Height, size.y);
+                    }
+                    
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(invalidation), invalidation, null);
+            }
+            
+            component.OnEntityInvalidated(invalidation);
+        }
+    }
 
     public void Dispose()
     {
@@ -66,4 +97,9 @@ public class Entity : IDisposable
         
         OnDispose?.Invoke(this);
     }
+}
+
+public enum EntityInvalidation
+{
+    DrawSize
 }

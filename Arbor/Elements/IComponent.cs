@@ -11,4 +11,7 @@ public interface IComponent
     void Update(IClock clock) { }
     void Draw(DrawPipeline pipeline) { }
     void Destroy() { }
+    
+    // Invalidations
+    void OnEntityInvalidated(EntityInvalidation invalidation) { }
 }
