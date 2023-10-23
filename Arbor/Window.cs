@@ -1,4 +1,5 @@
 ﻿using Arbor.Caching;
+using Arbor.Debugging;
 using Arbor.Graphics;
 using Arbor.Graphics.Shaders.Uniforms;
 using Arbor.Statistics;
@@ -55,6 +56,8 @@ public class Window : IDisposable
 
         runningGame.FramedClock = clock;
         runningGame.LoadInternal();
+        
+        DebugDraw.Device = Pipeline;
 
         // TODO: Run in separate threads for input, audio, update, and draw.
         while (window.Exists)

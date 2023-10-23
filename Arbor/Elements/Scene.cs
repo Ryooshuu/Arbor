@@ -49,7 +49,7 @@ public class Scene : IDisposable
     {
     }
     
-    internal void UpdateInternal(IFrameBasedClock clock)
+    internal virtual void UpdateInternal(IFrameBasedClock clock)
     {
         SpriteSystem.Update(clock);
         SpriteTextSystem.Update(clock);
@@ -60,7 +60,7 @@ public class Scene : IDisposable
     {
     }
     
-    internal void DrawInternal(DrawPipeline pipeline)
+    internal virtual void DrawInternal(DrawPipeline pipeline)
     {
         SpriteSystem.Draw(pipeline);
         SpriteTextSystem.Draw(pipeline);

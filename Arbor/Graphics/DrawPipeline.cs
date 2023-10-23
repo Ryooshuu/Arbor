@@ -16,8 +16,10 @@ public class DrawPipeline : IDisposable
     private readonly Stack<mat4> matrixStack = new Stack<mat4>();
 
     private readonly CommandList commandList;
-    private GraphicsPipelineDescription defaultPipelineDescription;
+    private readonly GraphicsPipelineDescription defaultPipelineDescription;
     private readonly Cached<Pipeline> pipeline = new Cached<Pipeline>();
+    
+    internal readonly Queue<Action<CommandList>> DebugDrawQueue = new Queue<Action<CommandList>>();
     
     public DevicePipeline DevicePipeline { get; }
     
@@ -27,7 +29,7 @@ public class DrawPipeline : IDisposable
         
         commandList = DevicePipeline.Factory.CreateCommandList();
         GlobalPropertyManager.Init(DevicePipeline);
-        createDefaultPipeline();
+        defaultPipelineDescription = CreateDefaultPipeline();
     }
     
     public void Start()
@@ -103,6 +105,7 @@ public class DrawPipeline : IDisposable
 
     public void End()
     {
+        drawStack.Push(new DrawDebug(this));
         drawStack.Push(new DrawEnd(this));
     }
 
@@ -112,6 +115,11 @@ public class DrawPipeline : IDisposable
             command.Execute(commandList);
         
         DevicePipeline.Submit(commandList);
+    }
+    
+    internal void QueueForDebug(Action<CommandList> action)
+    {
+        DebugDrawQueue.Enqueue(action);
     }
     
     #region Veldrid Pipeline
@@ -124,7 +132,7 @@ public class DrawPipeline : IDisposable
         return pipeline.Value = DevicePipeline.CreatePipeline(defaultPipelineDescription);
     }
 
-    private void createDefaultPipeline()
+    internal GraphicsPipelineDescription CreateDefaultPipeline()
     {
         var builder = new GraphicsPipelineDescriptionBuilder();
 
@@ -136,7 +144,7 @@ public class DrawPipeline : IDisposable
            .SetShaderSet()
            .SetOutput(DevicePipeline.GetSwapchainFramebuffer().OutputDescription);
         
-        defaultPipelineDescription = builder.Build();
+        return builder.Build();
     }
 
     #endregion

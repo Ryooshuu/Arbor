@@ -54,13 +54,15 @@ public abstract class Game : Scene
     private void addFont(FontStore target, ResourceStore<byte[]> store, string? assetName = null)
         => target.AddTextureSource(new RawCachingGlyphStore(store, assetName, new TextureLoaderStore(store)));
 
-    protected override void Update(IFrameBasedClock clock)
+    internal override void UpdateInternal(IFrameBasedClock clock)
     {
+        base.UpdateInternal(clock);
         propagateDebugComponents(c => c.Update(clock));   
     }
 
-    protected override void Draw(DrawPipeline pipeline)
+    internal override void DrawInternal(DrawPipeline pipeline)
     {
+        base.DrawInternal(pipeline);
         propagateDebugComponents(c => c.Draw(pipeline));
     }
 

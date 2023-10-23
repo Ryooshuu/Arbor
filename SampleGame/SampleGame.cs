@@ -1,6 +1,9 @@
+using System.Drawing;
 using Arbor;
+using Arbor.Debugging;
 using Arbor.Elements;
 using Arbor.Elements.Components;
+using Arbor.Graphics;
 using Arbor.IO.Stores;
 using Arbor.Text;
 using Arbor.Timing;
@@ -27,7 +30,7 @@ public class SampleGame : Game
         });
         transform = entity.AddComponent(new Transform
         {
-            Position = new vec2(100, 100),
+            Position = new vec2(300, 100),
             Scale = new vec2(50f),
             Origin = Anchor.Centre
         });
@@ -48,5 +51,14 @@ public class SampleGame : Game
     {
         transform.Position = new vec2((float) (transform.Position.x + 0.1f * clock.ElapsedFrameTime), transform.Position.y);
         transform.Rotation += (float)(0.1f * clock.ElapsedFrameTime);
+    }
+
+    protected override void Draw(DrawPipeline pipeline)
+    {
+        DebugDraw.Rect(new RectangleF(transform.Position.x, transform.Position.y, 2, 2), RgbaFloat.Red);
+        DebugDraw.Line(new vec2(0), new vec2(50), RgbaFloat.Red);
+        DebugDraw.Rect(new vec2(20), new vec2(70, 20), new vec2(60, 60), new vec2(20, 70), RgbaFloat.Green);
+        DebugDraw.Rect(new RectangleF(20, 20, 50, 50), RgbaFloat.Blue);
+        DebugDraw.Shape(RgbaFloat.Yellow, new vec2(70), new vec2(80, 70), new vec2(75, 80), new vec2(70));
     }
 }
