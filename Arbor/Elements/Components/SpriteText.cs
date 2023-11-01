@@ -119,7 +119,7 @@ public class SpriteText : IComponent, IHasSize
         if (fontAtlas == null)
             return;
         
-        shader ??= ShaderSetHelper.CreateTexturedShaderSet(fontAtlas.TextureView, Entity.Pipeline.GetDefaultSampler());
+        shader ??= ShaderSetHelper.CreateTexturedShaderSet(fontAtlas.TextureView, Entity.Pipeline.Ansio4xSampler);
         bufferCache.Validate();
         Entity.Invalidate(EntityInvalidation.DrawSize);
     }

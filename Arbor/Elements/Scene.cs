@@ -9,7 +9,7 @@ public class Scene : IDisposable
     // TODO: move this to the game class.
     internal Window Window = null!;
     
-    internal DevicePipeline Pipeline => Window.Pipeline;
+    protected DevicePipeline Pipeline => Window.Pipeline;
 
     internal IFrameBasedClock FramedClock = null!;
 

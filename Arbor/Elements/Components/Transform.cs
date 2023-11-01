@@ -65,7 +65,7 @@ public class Transform : IComponent
 
     private vec2 size = new vec2(1);
 
-    internal vec2 Size
+    public vec2 Size
     {
         get => size;
         set

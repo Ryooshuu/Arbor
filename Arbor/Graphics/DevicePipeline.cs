@@ -70,9 +70,6 @@ public class DevicePipeline : IDisposable
     public Framebuffer GetSwapchainFramebuffer()
         => Device.SwapchainFramebuffer;
 
-    public Sampler GetDefaultSampler()
-        => Device.Aniso4xSampler;
-    
     internal Texture[] GetAllTextures()
         => allTextures.ToArray();
 
@@ -109,6 +106,23 @@ public class DevicePipeline : IDisposable
     {
         Device.UpdateTexture(original, data, x, y, 0, width, height, 1, 0, 0);
     }
+
+    #region Samplers
+    
+    // ReSharper disable once InconsistentNaming
+    public Sampler Ansio4xSampler
+        => Device.Aniso4xSampler;
+    
+    public Sampler PointSampler
+        => Device.PointSampler;
+    
+    public Sampler LinearSampler
+        => Device.LinearSampler;
+    
+    public Sampler CreateSampler(SamplerDescription description)
+        => Factory.CreateSampler(description);
+
+    #endregion
 
     internal event Action<Texture>? TextureCreated;
 

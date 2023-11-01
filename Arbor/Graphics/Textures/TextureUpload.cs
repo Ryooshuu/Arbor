@@ -21,6 +21,7 @@ public class TextureUpload : ITextureUpload
     public TextureUpload(Image<Rgba32> image)
     {
         this.image = image;
+        Bounds = new Rectangle(0, 0, image.Width, image.Height);
         pixelMemory = image.CreateReadonlyPixelMemory();
     }
 

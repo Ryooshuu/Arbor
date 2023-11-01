@@ -79,7 +79,7 @@ public class Texture : IDisposable
     public virtual RectangleF GetUvRect(RectangleF? area = null)
     {
         var texRect = GetTextureRect(area);
-        return new RectangleF(texRect.Left / NativeTexture.Width, texRect.Top / NativeTexture.Height, texRect.Width / NativeTexture.Width, texRect.Height / NativeTexture.Height);
+        return new RectangleF(texRect.X / NativeTexture.Width, texRect.Y / NativeTexture.Height, texRect.Width / NativeTexture.Width, texRect.Height / NativeTexture.Height);
     }
 
     #region TextureVisualizer Support
